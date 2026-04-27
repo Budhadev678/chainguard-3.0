@@ -201,7 +201,7 @@ Every route option includes **CO₂ emission estimates**. The system recommends 
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/chainguard-3.0.git
+git clone https://github.com/Budhadev678/chainguard-3.0.git
 cd chainguard-3.0
 
 # ── Backend Setup ──
