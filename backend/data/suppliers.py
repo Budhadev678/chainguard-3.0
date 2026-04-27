@@ -1,0 +1,138 @@
+"""
+ChainGuard 3.0 — Multi-Tier Supplier Data
+8 suppliers across 3 tiers with health scores, locations, and dependencies.
+"""
+
+SUPPLIERS = [
+    {
+        "id": "SUP-001",
+        "name": "ChipTech Semiconductor",
+        "tier": 1,
+        "location": {"name": "Hsinchu, Taiwan", "lat": 24.8138, "lng": 120.9675},
+        "country": "Taiwan",
+        "products": ["Semiconductor Chips", "Memory Modules"],
+        "health_score": 72,
+        "risk_factors": ["Geopolitical tension", "Earthquake zone"],
+        "dependencies": ["SUP-005", "SUP-006"],
+        "annual_revenue_m": 850,
+        "employees": 12000,
+        "status": "warning",
+        "last_incident": "Labor union negotiations — 2 weeks ago",
+    },
+    {
+        "id": "SUP-002",
+        "name": "AutoDrive Components",
+        "tier": 1,
+        "location": {"name": "Stuttgart, Germany", "lat": 48.7758, "lng": 9.1829},
+        "country": "Germany",
+        "products": ["Auto Parts", "Engine Components"],
+        "health_score": 88,
+        "risk_factors": ["Energy price volatility"],
+        "dependencies": ["SUP-007"],
+        "annual_revenue_m": 1200,
+        "employees": 8500,
+        "status": "healthy",
+        "last_incident": None,
+    },
+    {
+        "id": "SUP-003",
+        "name": "PharmaCare India",
+        "tier": 1,
+        "location": {"name": "Hyderabad, India", "lat": 17.3850, "lng": 78.4867},
+        "country": "India",
+        "products": ["Pharmaceuticals", "Medical Supplies"],
+        "health_score": 65,
+        "risk_factors": ["Monsoon flooding", "Power grid instability"],
+        "dependencies": ["SUP-008"],
+        "annual_revenue_m": 320,
+        "employees": 4200,
+        "status": "warning",
+        "last_incident": "Factory power outage — 1 month ago",
+    },
+    {
+        "id": "SUP-004",
+        "name": "Precision Metals Co.",
+        "tier": 1,
+        "location": {"name": "Osaka, Japan", "lat": 34.6937, "lng": 135.5023},
+        "country": "Japan",
+        "products": ["Machinery", "Industrial Equipment"],
+        "health_score": 92,
+        "risk_factors": ["Earthquake zone"],
+        "dependencies": ["SUP-006"],
+        "annual_revenue_m": 2100,
+        "employees": 15000,
+        "status": "healthy",
+        "last_incident": None,
+    },
+    {
+        "id": "SUP-005",
+        "name": "RareEarth Mining Corp",
+        "tier": 2,
+        "location": {"name": "Baotou, China", "lat": 40.6522, "lng": 109.8401},
+        "country": "China",
+        "products": ["Rare Earth Minerals", "Lithium"],
+        "health_score": 55,
+        "risk_factors": ["Environmental regulations", "Export restrictions", "Geopolitical"],
+        "dependencies": [],
+        "annual_revenue_m": 480,
+        "employees": 6000,
+        "status": "critical",
+        "last_incident": "Export quota reduced by government — 1 week ago",
+    },
+    {
+        "id": "SUP-006",
+        "name": "SteelWorks Pacific",
+        "tier": 2,
+        "location": {"name": "Pohang, South Korea", "lat": 36.0190, "lng": 129.3435},
+        "country": "South Korea",
+        "products": ["Steel Coils", "Alloy Sheets"],
+        "health_score": 78,
+        "risk_factors": ["Raw material price spikes"],
+        "dependencies": ["SUP-005"],
+        "annual_revenue_m": 900,
+        "employees": 7200,
+        "status": "healthy",
+        "last_incident": None,
+    },
+    {
+        "id": "SUP-007",
+        "name": "PolymerTech Chemicals",
+        "tier": 2,
+        "location": {"name": "Rotterdam, Netherlands", "lat": 51.9225, "lng": 4.4792},
+        "country": "Netherlands",
+        "products": ["Industrial Polymers", "Chemical Compounds"],
+        "health_score": 84,
+        "risk_factors": ["Chemical regulation changes"],
+        "dependencies": [],
+        "annual_revenue_m": 560,
+        "employees": 3800,
+        "status": "healthy",
+        "last_incident": None,
+    },
+    {
+        "id": "SUP-008",
+        "name": "BioSource Extracts",
+        "tier": 3,
+        "location": {"name": "Nairobi, Kenya", "lat": -1.2921, "lng": 36.8219},
+        "country": "Kenya",
+        "products": ["Plant Extracts", "Organic Compounds"],
+        "health_score": 48,
+        "risk_factors": ["Political instability", "Drought risk", "Infrastructure gaps"],
+        "dependencies": [],
+        "annual_revenue_m": 45,
+        "employees": 800,
+        "status": "critical",
+        "last_incident": "Road access blocked due to floods — 3 days ago",
+    },
+]
+
+
+def get_all_suppliers():
+    return SUPPLIERS
+
+
+def get_supplier_by_id(supplier_id: str):
+    for s in SUPPLIERS:
+        if s["id"] == supplier_id:
+            return s
+    return None
