@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { Package, AlertTriangle, CheckCircle2, Leaf, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 const KPI_CONFIG = [
   {
@@ -18,6 +19,7 @@ const KPI_CONFIG = [
     trend: +8,
     suffix: '',
     subtitle: 'In Transit',
+    tooltip: 'Total number of shipments currently in transit across all modes.'
   },
   {
     key: 'high_risk',
@@ -31,6 +33,7 @@ const KPI_CONFIG = [
     trend: -3,
     suffix: '',
     subtitle: 'Need Attention',
+    tooltip: 'Shipments currently flagged with critical or warning risk levels requiring immediate intervention.'
   },
   {
     key: 'pending_decisions',
@@ -44,6 +47,7 @@ const KPI_CONFIG = [
     trend: 0,
     suffix: '',
     subtitle: 'Awaiting Approval',
+    tooltip: 'Operational checkpoints or routing changes awaiting user confirmation.'
   },
   {
     key: 'co2_impact',
@@ -57,6 +61,7 @@ const KPI_CONFIG = [
     trend: +12,
     suffix: 't',
     subtitle: 'Saved This Month',
+    tooltip: 'Estimated carbon emissions offset through optimized routing and carrier selection.'
   },
 ];
 
@@ -131,7 +136,10 @@ export default function KPICards({ stats = {}, shipments = [] }) {
             </div>
 
             {/* Label */}
-            <div className="kpi-label">{kpi.label}</div>
+            <div className="kpi-label-wrapper">
+              <div className="kpi-label">{kpi.label}</div>
+              <InfoTooltip text={kpi.tooltip} position="bottom" />
+            </div>
             <div className="kpi-subtitle">{kpi.subtitle}</div>
 
             {/* Glow bar */}
@@ -191,12 +199,8 @@ export default function KPICards({ stats = {}, shipments = [] }) {
           line-height: 1;
           margin-bottom: 6px;
         }
-        .kpi-label {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          margin-bottom: 2px;
-        }
+        .kpi-label-wrapper { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+        .kpi-label { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
         .kpi-subtitle {
           font-size: 0.68rem;
           color: var(--text-muted);

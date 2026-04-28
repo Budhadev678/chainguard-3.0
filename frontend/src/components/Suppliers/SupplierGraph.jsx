@@ -77,6 +77,7 @@ export default function SupplierGraph({ suppliers = [] }) {
               <div className="sug-tier-label" style={{ color: TIER_COLORS[tier] }}>
                 <span className="sug-tier-dot" style={{ background: TIER_COLORS[tier] }} />
                 Tier {tier} — {tier === 1 ? 'Direct Partners' : tier === 2 ? 'Sub-suppliers' : 'Raw Materials'}
+                <InfoTooltip text={tier === 1 ? "Your direct contract manufacturers and primary assembly partners." : tier === 2 ? "Secondary suppliers that provide components to your Tier 1 partners." : "Deep-tier suppliers providing raw materials like metals, chemicals, or base elements."} position="right" />
               </div>
               <div className="sug-tier-cards">
                 {tierSups.map((sup, i) => {

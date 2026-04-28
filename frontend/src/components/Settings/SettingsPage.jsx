@@ -22,6 +22,14 @@ export default function SettingsPage() {
     language: 'en',
   });
 
+  useEffect(() => {
+    if (settings.darkMode) {
+      document.body.classList.remove('light-theme');
+    } else {
+      document.body.classList.add('light-theme');
+    }
+  }, [settings.darkMode]);
+
   function handleSave() {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -48,9 +56,14 @@ export default function SettingsPage() {
       <div className="stg-sections">
         {/* API Configuration */}
         <div className="stg-section glass-panel">
-          <div className="stg-section-title"><Key size={16} color="#38bdf8" /> API Configuration</div>
+          <div className="stg-section-title">
+            <Key size={16} color="#38bdf8" /> API Configuration
+          </div>
           <div className="stg-field">
-            <label className="stg-label">Gemini API Key</label>
+            <label className="stg-label">
+              Gemini API Key
+              <InfoTooltip text="Your Google Gemini API Key. Required for What-If scenario simulations and natural language risk analysis." position="right" />
+            </label>
             <div className="stg-input-wrap">
               <input
                 className="stg-input"
@@ -65,7 +78,10 @@ export default function SettingsPage() {
             <span className="stg-hint">Used for Gemini AI analysis and What-If scenarios</span>
           </div>
           <div className="stg-field">
-            <label className="stg-label">Backend API URL</label>
+            <label className="stg-label">
+              Backend API URL
+              <InfoTooltip text="The endpoint URL of your FastAPI Python backend server." position="right" />
+            </label>
             <input
               className="stg-input"
               type="text"
@@ -78,9 +94,14 @@ export default function SettingsPage() {
 
         {/* Monitoring Settings */}
         <div className="stg-section glass-panel">
-          <div className="stg-section-title"><Globe size={16} color="#a78bfa"/> Monitoring Settings</div>
+          <div className="stg-section-title">
+            <Globe size={16} color="#a78bfa"/> Monitoring Settings
+          </div>
           <div className="stg-field">
-            <label className="stg-label">Data Refresh Interval (seconds)</label>
+            <label className="stg-label">
+              Data Refresh Interval (seconds)
+              <InfoTooltip text="How frequently the platform pulls live shipping and risk data from the backend." position="right" />
+            </label>
             <input
               className="stg-input stg-input-sm"
               type="number"
@@ -91,7 +112,10 @@ export default function SettingsPage() {
             />
           </div>
           <div className="stg-field">
-            <label className="stg-label">Risk Alert Threshold (score 0-100)</label>
+            <label className="stg-label">
+              Risk Alert Threshold (score 0-100)
+              <InfoTooltip text="Shipments with a risk score above this threshold will automatically trigger an escalation in the War Room." position="right" />
+            </label>
             <div className="stg-range-wrap">
               <input
                 className="stg-range"
@@ -110,10 +134,15 @@ export default function SettingsPage() {
 
         {/* Notifications */}
         <div className="stg-section glass-panel">
-          <div className="stg-section-title"><Bell size={16} color="#fbbf24"/> Notifications</div>
+          <div className="stg-section-title">
+            <Bell size={16} color="#fbbf24"/> Notifications
+          </div>
           <div className="stg-toggle-row">
             <div>
-              <div className="stg-toggle-label">Email Alerts</div>
+              <div className="stg-toggle-label">
+                Email Alerts
+                <InfoTooltip text="Send critical disruption alerts to registered logistics manager emails." position="right" />
+              </div>
               <div className="stg-toggle-sub">Receive critical alerts via email</div>
             </div>
             <button
@@ -125,7 +154,10 @@ export default function SettingsPage() {
           </div>
           <div className="stg-toggle-row">
             <div>
-              <div className="stg-toggle-label">Slack Integration</div>
+              <div className="stg-toggle-label">
+                Slack Integration
+                <InfoTooltip text="Push alerts directly to your designated #supply-chain Slack channel." position="right" />
+              </div>
               <div className="stg-toggle-sub">Send alerts to Slack channel</div>
             </div>
             <button
@@ -139,10 +171,15 @@ export default function SettingsPage() {
 
         {/* Display */}
         <div className="stg-section glass-panel">
-          <div className="stg-section-title"><Shield size={16} color="#34d399"/> Display Preferences</div>
+          <div className="stg-section-title">
+            <Shield size={16} color="#34d399"/> Display Preferences
+          </div>
           <div className="stg-toggle-row">
             <div>
-              <div className="stg-toggle-label">Dark Mode</div>
+              <div className="stg-toggle-label">
+                Dark Mode
+                <InfoTooltip text="Toggle between Dark and Light mode themes." position="right" />
+              </div>
               <div className="stg-toggle-sub">Navy dark theme (recommended)</div>
             </div>
             <button
@@ -154,7 +191,10 @@ export default function SettingsPage() {
           </div>
           <div className="stg-toggle-row">
             <div>
-              <div className="stg-toggle-label">Compact View</div>
+              <div className="stg-toggle-label">
+                Compact View
+                <InfoTooltip text="Shrink margins and padding to fit more data onto single screens." position="right" />
+              </div>
               <div className="stg-toggle-sub">Show more data with smaller cards</div>
             </div>
             <button
