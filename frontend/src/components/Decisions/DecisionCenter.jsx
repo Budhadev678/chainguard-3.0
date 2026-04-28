@@ -2,8 +2,8 @@
  * ChainGuard 3.0 — Decision Center (PRD requirement)
  * One-click approve/defer AI-recommended actions
  */
-import { useState } from 'react';
 import { CheckCircle2, Clock, Zap, DollarSign, Leaf, AlertTriangle, Sparkles, Ship, Truck, Plane } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 const DECISIONS = [
   {
@@ -74,7 +74,10 @@ export default function DecisionCenter({ activeDisruptions = [], onDecisionMade 
         <div className="dc-hdr-left">
           <div className="dc-hdr-icon"><CheckCircle2 size={20} /></div>
           <div>
-            <h2 className="dc-title">Decision Center</h2>
+            <h2 className="dc-title">
+              Decision Center
+              <InfoTooltip text="Review, approve, or defer AI-recommended mitigation strategies. This acts as the final human-in-the-loop validation step before actions are executed." position="right" />
+            </h2>
             <p className="dc-sub">AI-recommended actions awaiting your approval</p>
           </div>
         </div>
@@ -151,9 +154,11 @@ export default function DecisionCenter({ activeDisruptions = [], onDecisionMade 
                     <button className="btn btn-success" onClick={() => handleApprove(d.id)}>
                       <CheckCircle2 size={14}/> Approve & Execute
                     </button>
+                    <InfoTooltip text="Instantly execute this strategy. The system will update carriers, reroute shipments, and adjust inventory automatically." position="top" />
                     <button className="btn btn-ghost" onClick={() => setDeferred(prev => new Set([...prev, d.id]))}>
                       <Clock size={14}/> Defer
                     </button>
+                    <InfoTooltip text="Postpone this decision to gather more data or wait for conditions to change." position="top" />
                   </>
                 )}
               </div>

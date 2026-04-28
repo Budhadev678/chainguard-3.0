@@ -137,9 +137,12 @@ export default function App() {
               <Shield size={15} />
             </div>
             {navHovered && (
-              <span className="nav-brand-text">
-                ChainGuard <span className="nav-brand-ver">3.0</span>
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <span className="nav-brand-text">
+                  ChainGuard <span className="nav-brand-ver">3.0</span>
+                </span>
+                <InfoTooltip text="ChainGuard 3.0 is an AI-powered Supply Chain Control Tower designed to transition logistics from reactive to proactive risk management. It monitors global shipments, predicts disruptions, and uses AI to recommend and automate alternative routing and mitigation strategies." position="right" />
+              </div>
             )}
           </div>
 
@@ -272,7 +275,12 @@ export default function App() {
               </div>
 
               {/* Center Map */}
-              <div className="app-center">
+              <div className="app-center" style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 400, background: 'var(--bg-glass-strong)', padding: '8px 14px', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--border-subtle)', backdropFilter: 'blur(12px)', boxShadow: 'var(--shadow-md)' }}>
+                  <Map size={16} color="var(--accent-blue)" />
+                  <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>Global Command Center</span>
+                  <InfoTooltip text="Welcome to the main Command Center! Use this map to track live shipments. On the left, use the 'Simulator' to inject hypothetical risks (like weather or port strikes) and watch how the AI responds in real-time." position="right" />
+                </div>
                 <ShipmentMap
                   shipments={shipments}
                   activeDisruptions={activeDisruptions}
@@ -409,7 +417,7 @@ export default function App() {
           border-right: 1px solid var(--border-subtle);
           flex-shrink: 0;
           transition: width 200ms cubic-bezier(0.4,0,0.2,1);
-          overflow: hidden;
+          overflow: visible;
           z-index: 100;
         }
         .nav-sidebar.expanded { width: 216px; }
@@ -451,7 +459,7 @@ export default function App() {
           flex-direction: column;
           padding: 10px 0;
           gap: 1px;
-          overflow: hidden;
+          overflow: visible;
         }
         .nav-footer {
           padding: 8px 0;
@@ -474,7 +482,7 @@ export default function App() {
           transition: background 150ms ease, color 150ms ease;
           font-family: var(--font-sans);
           text-align: left;
-          overflow: hidden;
+          overflow: visible;
         }
         .nav-btn:hover {
           background: rgba(255,255,255,0.04);

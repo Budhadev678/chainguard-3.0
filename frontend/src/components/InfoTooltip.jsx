@@ -31,7 +31,7 @@ export default function InfoTooltip({ text, position = 'top' }) {
           color: var(--text-primary);
           white-space: normal;
           box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
-          width: 240px;
+          width: 300px;
           pointer-events: none;
           animation: slideUp 0.2s ease-out;
           z-index: 1000;

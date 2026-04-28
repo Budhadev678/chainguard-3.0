@@ -3,6 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { X, Ship, Truck, Plane, Train, MapPin, Clock, Package, DollarSign, AlertTriangle, TrendingUp, ChevronRight } from 'lucide-react';
+import InfoTooltip from './InfoTooltip';
 import { fetchCascade, fetchRouteOptions, fetchAIDecision, approveDecision } from '../api';
 import CascadeSimulator from './CascadeSimulator';
 import RouteOptions from './RouteOptions';
@@ -225,15 +226,24 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
                       <span>💰 ${(d.impact.estimated_loss / 1000000).toFixed(1)}M at risk</span>
                     </div>
                     <div className="sp-dis-actions">
-                      <button className="btn btn-danger btn-sm" onClick={() => loadCascade(d.id)} disabled={loadingCascade}>
-                        {loadingCascade ? 'Loading...' : '🌊 Cascade'}
-                      </button>
-                      <button className="btn btn-primary btn-sm" onClick={() => loadRoutes(d.id)} disabled={loadingRoutes}>
-                        {loadingRoutes ? 'Loading...' : '🔀 Routes'}
-                      </button>
-                      <button className="btn btn-success btn-sm" onClick={() => loadAI(d.id)} disabled={loadingAI}>
-                        {loadingAI ? 'Loading...' : '🤖 AI'}
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <button className="btn btn-danger btn-sm" onClick={() => loadCascade(d.id)} disabled={loadingCascade}>
+                          {loadingCascade ? 'Loading...' : '🌊 Cascade'}
+                        </button>
+                        <InfoTooltip text="Simulate the cascading ripple effects of this disruption across down-stream warehouses and suppliers." position="top" />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => loadRoutes(d.id)} disabled={loadingRoutes}>
+                          {loadingRoutes ? 'Loading...' : '🔀 Routes'}
+                        </button>
+                        <InfoTooltip text="View AI-generated alternative routes to mitigate delays." position="top" />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <button className="btn btn-success btn-sm" onClick={() => loadAI(d.id)} disabled={loadingAI}>
+                          {loadingAI ? 'Loading...' : '🤖 AI'}
+                        </button>
+                        <InfoTooltip text="Get an instant natural language analysis of the situation and recommendations from Gemini AI." position="top" />
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -4,6 +4,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, Loader2 } from 'lucide-react';
 import { runWhatIf, chatWithAI } from '../api';
+import InfoTooltip from './InfoTooltip';
 
 const EXAMPLE_QUERIES = [
   "What if the Suez Canal closes for 3 weeks?",
@@ -65,6 +66,7 @@ export default function WhatIfPanel() {
       <div className="wf-header">
         <Sparkles size={16} style={{ color: 'var(--accent-purple)' }} />
         <span>AI Scenario Engine</span>
+        <InfoTooltip text="Use natural language to query the system or simulate 'what-if' scenarios. The AI analyzes your multi-tier supply network to predict the impact of hypothetical events, helping you prepare for future disruptions before they happen." position="left" />
       </div>
 
       {/* Messages */}

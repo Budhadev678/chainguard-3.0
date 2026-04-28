@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { Users, Shield, Radio, Clock, AlertTriangle, MessageSquare, Send, CheckCircle, Zap } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 const PARTICIPANTS = [
   { name: 'You (Logistics Manager)', role: 'Decision Maker', location: 'Mumbai HQ', avatar: '👤', online: true },
@@ -81,7 +82,10 @@ export default function WarRoom({ activeDisruptions = [], shipments = [], stats 
             <Users size={20} />
           </div>
           <div>
-            <h2 className="wr-title">War Room</h2>
+            <h2 className="wr-title">
+              War Room
+              <InfoTooltip text="A real-time collaborative workspace activated during critical supply chain disruptions. It unites logistics managers, suppliers, carriers, and the AI agent in a single chat room to rapidly align on and execute mitigation strategies." position="right" />
+            </h2>
             <p className="wr-subtitle">Real-time collaborative decision space for critical disruptions</p>
           </div>
         </div>

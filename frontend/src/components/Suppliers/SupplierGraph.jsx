@@ -3,6 +3,7 @@
  * Multi-tier supplier health monitoring with visual hierarchy.
  */
 import { Factory, AlertTriangle, CheckCircle, Globe, Link2 } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 const TIER_COLORS = { 1: '#3b82f6', 2: '#f59e0b', 3: '#ef4444' };
 const STATUS_MAP = {
@@ -21,7 +22,10 @@ export default function SupplierGraph({ suppliers = [] }) {
           <Factory size={20} />
         </div>
         <div>
-          <h2 className="sug-title">Supplier Network</h2>
+          <h2 className="sug-title">
+            Supplier Network
+            <InfoTooltip text="Monitor the health of your multi-tier supply network. Tier 1 are direct partners, Tier 2 are sub-suppliers, and Tier 3 are raw material providers. The AI maps dependencies to predict upstream risks." position="right" />
+          </h2>
           <p className="sug-subtitle">
             Multi-tier supplier health monitoring — {suppliers.length} suppliers across 3 tiers
           </p>

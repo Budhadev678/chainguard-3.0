@@ -3,6 +3,7 @@
  * Performance metrics, risk distribution, and impact summary.
  */
 import { BarChart3, TrendingUp, Shield, DollarSign, Leaf, Clock, CheckCircle, AlertTriangle, Zap, Package } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 export default function Analytics({ stats = {}, shipments = [] }) {
   const cards = [
@@ -30,7 +31,10 @@ export default function Analytics({ stats = {}, shipments = [] }) {
           <BarChart3 size={20} />
         </div>
         <div>
-          <h2 className="an-title">Performance Analytics</h2>
+          <h2 className="an-title">
+            Performance Analytics
+            <InfoTooltip text="Track operational KPIs, measure ROI from automated AI decisions, and monitor your carbon footprint reduction across all shipments in real-time." position="right" />
+          </h2>
           <p className="an-subtitle">Real-time operational metrics, risk intelligence & impact summary</p>
         </div>
       </div>
