@@ -6,6 +6,6 @@
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
-    "VITE_API_BASE": "https://chainguard-v3-production.up.railway.app/api"
+    "VITE_API_BASE": "https://chainguard-api-2fxn.onrender.com/api"
   }
 }
