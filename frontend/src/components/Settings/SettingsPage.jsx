@@ -3,7 +3,7 @@
  * API keys, global configuration, user preferences.
  * Wrapped in a scrollable full-height container.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings, Key, Globe, Bell, Shield, Save, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import InfoTooltip from '../InfoTooltip';
 
