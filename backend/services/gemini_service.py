@@ -5,6 +5,8 @@ Integrates Google Gemini for decision generation, what-if scenarios, and natural
 
 import os
 import json
+import asyncio
+from functools import partial
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,6 +35,28 @@ Always respond in structured, clear format with:
 - Risk assessment
 
 Be concise, data-driven, and action-oriented. Use bullet points."""
+
+
+def _call_gemini_sync(prompt, max_tokens=1024, temperature=0.7):
+    """Synchronous wrapper for Gemini API call."""
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    response = model.generate_content(
+        f"{SYSTEM_PROMPT}\n\n{prompt}",
+        generation_config=genai.types.GenerationConfig(
+            max_output_tokens=max_tokens,
+            temperature=temperature,
+        ),
+    )
+    return response.text
+
+
+async def _call_gemini(prompt, max_tokens=1024, temperature=0.7):
+    """Async wrapper — runs the synchronous Gemini call in a thread pool."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(
+        None,
+        partial(_call_gemini_sync, prompt, max_tokens, temperature),
+    )
 
 
 async def generate_ai_decision(shipment_data: dict, risk_data: dict, disruption_data: dict) -> dict:
@@ -64,17 +88,12 @@ Provide:
 
     if HAS_GEMINI and genai:
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            response = model.generate_content(
-                f"{SYSTEM_PROMPT}\n\n{prompt}",
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=1024,
-                    temperature=0.7,
-                ),
-            )
-            return {"success": True, "response": response.text, "source": "gemini"}
+            text = await _call_gemini(prompt, max_tokens=1024, temperature=0.7)
+            return {"success": True, "response": text, "source": "gemini"}
         except Exception as e:
-            return {"success": False, "response": f"Gemini API error: {str(e)}", "source": "error"}
+            print(f"[Gemini Error] {e}")
+            # Fall through to mock
+            return _mock_decision_response(shipment_data, disruption_data)
     else:
         return _mock_decision_response(shipment_data, disruption_data)
 
@@ -102,17 +121,11 @@ Analyze this scenario and provide:
 
     if HAS_GEMINI and genai:
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            response = model.generate_content(
-                f"{SYSTEM_PROMPT}\n\n{prompt}",
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=1024,
-                    temperature=0.7,
-                ),
-            )
-            return {"success": True, "response": response.text, "source": "gemini"}
+            text = await _call_gemini(prompt, max_tokens=1024, temperature=0.7)
+            return {"success": True, "response": text, "source": "gemini"}
         except Exception as e:
-            return {"success": False, "response": f"Gemini error: {str(e)}", "source": "error"}
+            print(f"[Gemini Error] {e}")
+            return _mock_what_if_response(query)
     else:
         return _mock_what_if_response(query)
 
@@ -133,17 +146,11 @@ provide data-driven answers. Keep responses concise (3-5 sentences max)."""
 
     if HAS_GEMINI and genai:
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            response = model.generate_content(
-                f"{SYSTEM_PROMPT}\n\n{prompt}",
-                generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=512,
-                    temperature=0.8,
-                ),
-            )
-            return {"success": True, "response": response.text, "source": "gemini"}
+            text = await _call_gemini(prompt, max_tokens=512, temperature=0.8)
+            return {"success": True, "response": text, "source": "gemini"}
         except Exception as e:
-            return {"success": False, "response": f"Gemini error: {str(e)}", "source": "error"}
+            print(f"[Gemini Error] {e}")
+            return _mock_chat_response(message)
     else:
         return _mock_chat_response(message)
 

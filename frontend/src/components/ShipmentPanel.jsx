@@ -75,16 +75,19 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
   const riskScore = shipment.risk_score || 0;
   const signals = shipment.risk_signals || {};
 
-  // Find matching disruptions
-  const matchedDisruptions = activeDisruptions.filter(d =>
-    d.affected_shipment_ids?.includes(shipment.id)
-  );
+  // Find matching disruptions — support both API and mock data field names
+  const matchedDisruptions = activeDisruptions.length > 0
+    ? activeDisruptions.filter(d =>
+        (d.affected_shipment_ids || d.affected_shipments || []).includes(shipment.id)
+      )
+    : (shipment.disruptions || []);
 
   const signalLabels = {
     weather: '🌦️ Weather',
     route_delay: '🛣️ Route',
     port_congestion: '🏗️ Port',
     news_geopolitical: '📰 News',
+    geopolitical: '📰 Geopolitical',
     supplier_health: '🏭 Supplier',
     inventory_level: '📦 Inventory',
     historical_pattern: '📊 History',
@@ -150,7 +153,7 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
         <div className="sp-meta-row">
           <span className={`badge badge-${riskLevel}`}>{riskLevel.toUpperCase()}</span>
           <span className="sp-meta"><Package size={12} /> {shipment.cargo}</span>
-          <span className="sp-meta"><DollarSign size={12} /> ${(shipment.cargo_value / 1000000).toFixed(1)}M</span>
+          <span className="sp-meta"><DollarSign size={12} /> ${((shipment.value_usd || shipment.cargo_value || 0) / 1000000).toFixed(1)}M</span>
         </div>
       </div>
 
@@ -188,7 +191,7 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
                 </div>
                 <div className="sp-detail-grid">
                   <div className="sp-detail"><Clock size={12} /> ETA: {shipment.eta_days}d</div>
-                  <div className="sp-detail"><TrendingUp size={12} /> Progress: {Math.round(shipment.progress * 100)}%</div>
+                  <div className="sp-detail"><TrendingUp size={12} /> Progress: {Math.round(shipment.progress_pct || shipment.progress * 100 || 0)}%</div>
                   <div className="sp-detail"><Ship size={12} /> {shipment.carrier}</div>
                   <div className="sp-detail"><Package size={12} /> {shipment.containers} containers</div>
                 </div>
@@ -272,7 +275,7 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
               <div className="sp-ai-response">
                 <div className="ai-badge"><span>🤖</span> Gemini AI Analysis</div>
                 <div className="markdown-content" dangerouslySetInnerHTML={{
-                  __html: aiData.response?.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/### (.*?)(<br\/>)/g, '<h3>$1</h3>').replace(/## (.*?)(<br\/>)/g, '<h2>$1</h2>') || 'No response'
+                  __html: (aiData.response || aiData.decision || 'No response').replace(/\\n/g, '\n').replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/### (.*?)<br\/>/g, '<h3>$1</h3>').replace(/## (.*?)<br\/>/g, '<h2>$1</h2>')
                 }} />
                 <div className="ai-source">Source: {aiData.source || 'gemini'}</div>
               </div>

@@ -64,7 +64,11 @@ export default function App() {
       setWarehouses(whRes.warehouses || []);
       setSuppliers(supRes.suppliers || []);
       setStats(statsRes);
-      setApiOnline(true);
+      // Check if we got real API data or mock data
+      // Mock data always resolves — probe the actual API separately
+      const apiProbe = await fetch((import.meta.env.VITE_API_BASE || 'http://localhost:8000/api') + '/stats')
+        .then(r => r.ok).catch(() => false);
+      setApiOnline(apiProbe);
       if (selectedShipment) {
         const updated = (shipRes.shipments || []).find(s => s.id === selectedShipment.id);
         if (updated) setSelectedShipment(updated);

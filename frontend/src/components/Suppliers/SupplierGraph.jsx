@@ -91,7 +91,7 @@ export default function SupplierGraph({ suppliers = [] }) {
                         <div className="sug-card-info">
                           <div className="sug-card-name">{sup.name}</div>
                           <div className="sug-card-location">
-                            <Globe size={10} /> {sup.location.name}
+                            <Globe size={10} /> {typeof sup.location === 'string' ? sup.location : sup.location?.name || 'Unknown'}
                           </div>
                         </div>
                         <div className="sug-card-score" style={{ color: statusColor }}>

@@ -43,10 +43,12 @@ export default function ChatWidget() {
       const isScenario = q.toLowerCase().startsWith('what if') || q.toLowerCase().includes('scenario');
       const result = isScenario ? await runWhatIf(q) : await chatWithAI(q);
 
+      // Normalize: backend returns {response}, mocks also return {response} now
+      const text = result.response || result.result || result.reply || 'No response received.';
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: result.response,
-        source: result.source,
+        content: text,
+        source: result.source || 'ai',
       }]);
 
       if (!open || minimized) setUnread(u => u + 1);

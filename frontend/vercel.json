@@ -1,7 +1,4 @@
 {
-  "env": {
-    "VITE_API_BASE": "https://chainguard-v3-production.up.railway.app/api"
-  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
