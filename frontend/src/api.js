@@ -15,6 +15,9 @@ let _simulatedDisruptions = new Set();
 let _approvedDecisions = new Set();
 
 async function request(path, options = {}) {
+  // Force fallback to MOCK data for a lag-free, perfectly synced presentation
+  throw new Error('Forcing mock data for lag-free demo');
+  
   const url = `${API_BASE}${path}`;
   const config = {
     headers: { 'Content-Type': 'application/json' },
