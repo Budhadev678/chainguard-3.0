@@ -188,7 +188,7 @@ export default function Analytics({ stats = {}, shipments = [] }) {
       )}
 
       <style>{`
-        .analytics { padding: 24px; height: 100%; overflow-y: auto; }
+        .analytics { padding: 0; height: 100%; display: flex; flex-direction: column; }
         .an-header { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
         .an-header-icon {
           width: 40px; height: 40px; border-radius: var(--radius-md);

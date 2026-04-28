@@ -1,6 +1,7 @@
 /**
  * ChainGuard 3.0 — Settings Page (PRD requirement)
- * API keys, global configuration, user preferences
+ * API keys, global configuration, user preferences.
+ * Wrapped in a scrollable full-height container.
  */
 import { useState } from 'react';
 import { Settings, Key, Globe, Bell, Shield, Save, Eye, EyeOff, CheckCircle } from 'lucide-react';
@@ -30,7 +31,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="settings-page">
+    <div className="settings-outer">
+      <div className="settings-page">
       <div className="stg-header">
         <div className="stg-header-icon"><Settings size={20} /></div>
         <div>
@@ -168,7 +170,8 @@ export default function SettingsPage() {
       </div>
 
       <style>{`
-        .settings-page { padding: 24px; height: 100%; overflow-y: auto; max-width: 800px; }
+        .settings-outer { height: 100%; overflow-y: auto; }
+        .settings-page { padding: 24px; max-width: 840px; margin: 0 auto; }
         .stg-header { display: flex; gap: 14px; align-items: center; margin-bottom: 24px; }
         .stg-header-icon { width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); display: flex; align-items: center; justify-content: center; color: var(--accent-blue); }
         .stg-title { font-size: 1.1rem; font-weight: 800; }
@@ -200,8 +203,9 @@ export default function SettingsPage() {
         .stg-toggle.on { background: var(--accent-blue); border-color: var(--accent-blue); }
         .stg-toggle-knob { width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 2px; left: 2px; transition: left 0.2s ease; }
         .stg-toggle.on .stg-toggle-knob { left: 22px; }
-        .stg-footer { padding-top: 8px; }
+        .stg-footer { padding-top: 8px; padding-bottom: 24px; }
       `}</style>
+      </div>
     </div>
   );
 }

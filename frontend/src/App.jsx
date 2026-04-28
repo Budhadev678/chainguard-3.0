@@ -1,11 +1,11 @@
 /**
  * ChainGuard 3.0 — AI-Powered Supply Chain Control Tower
- * Full PRD-compliant navigation and layout.
+ * Full PRD-compliant App with proper layouts, error handling, and mock data fallbacks.
  */
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Map, AlertTriangle, FlaskConical, Users, BarChart3, Factory,
-  Shield, CheckCircle2, Settings, HelpCircle, Menu, X, Zap
+  Map, AlertTriangle, Users, BarChart3, Factory,
+  Shield, CheckCircle2, Settings, Wifi, WifiOff
 } from 'lucide-react';
 import TopBar from './components/TopBar';
 import ShipmentMap from './components/ShipmentMap';
@@ -29,12 +29,12 @@ import {
 } from './api';
 
 const NAV_ITEMS = [
-  { id: 'command',    icon: Map,          label: 'Command Center',  color: '#38bdf8', group: 'main' },
-  { id: 'decisions',  icon: CheckCircle2, label: 'Decision Center', color: '#34d399', group: 'main', badge: 'decisions' },
-  { id: 'warroom',    icon: Users,        label: 'War Room',        color: '#22d3ee', group: 'main', badge: 'alerts' },
-  { id: 'suppliers',  icon: Factory,      label: 'Supplier Network',color: '#fbbf24', group: 'main' },
-  { id: 'analytics',  icon: BarChart3,    label: 'Analytics',       color: '#a78bfa', group: 'main' },
-  { id: 'settings',   icon: Settings,     label: 'Settings',        color: '#64748b', group: 'bottom' },
+  { id: 'command',   icon: Map,          label: 'Command Center',   color: '#38bdf8', group: 'main' },
+  { id: 'decisions', icon: CheckCircle2, label: 'Decision Center',  color: '#34d399', group: 'main', badge: 'decisions' },
+  { id: 'warroom',   icon: Users,        label: 'War Room',         color: '#22d3ee', group: 'main', badge: 'alerts' },
+  { id: 'suppliers', icon: Factory,      label: 'Supplier Network', color: '#fbbf24', group: 'main' },
+  { id: 'analytics', icon: BarChart3,    label: 'Analytics',        color: '#a78bfa', group: 'main' },
+  { id: 'settings',  icon: Settings,     label: 'Settings',         color: '#64748b', group: 'bottom' },
 ];
 
 export default function App() {
@@ -46,15 +46,13 @@ export default function App() {
   const [stats, setStats] = useState(null);
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [apiOnline, setApiOnline] = useState(null); // null=unknown, true=online, false=offline
   const [activeView, setActiveView] = useState('command');
   const [bottomTab, setBottomTab] = useState('disruptions');
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [navHovered, setNavHovered] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const [shipRes, disRes, activeRes, whRes, supRes, statsRes] = await Promise.all([
         fetchShipments(), fetchDisruptions(), fetchActiveDisruptions(),
@@ -66,12 +64,13 @@ export default function App() {
       setWarehouses(whRes.warehouses || []);
       setSuppliers(supRes.suppliers || []);
       setStats(statsRes);
+      setApiOnline(true);
       if (selectedShipment) {
         const updated = (shipRes.shipments || []).find(s => s.id === selectedShipment.id);
         if (updated) setSelectedShipment(updated);
       }
-    } catch (e) {
-      setError(e.message);
+    } catch {
+      setApiOnline(false);
     }
     setLoading(false);
   }, [selectedShipment?.id]);
@@ -96,44 +95,48 @@ export default function App() {
   }
 
   const alertCount = activeDisruptions.length;
-  const pendingDecisions = 3; // Would come from API in full impl
-
-  const isNavExpanded = sidebarExpanded || navHovered;
+  const pendingDecisions = 3;
+  const safeStats = stats || {};
 
   return (
     <div className="app-shell">
       {/* Top Bar */}
-      <TopBar stats={stats} activeDisruptions={activeDisruptions} onRefresh={loadData} loading={loading} />
+      <TopBar
+        stats={safeStats}
+        activeDisruptions={activeDisruptions}
+        onRefresh={loadData}
+        loading={loading}
+        apiOnline={apiOnline}
+      />
 
-      {/* Error Banner */}
-      {error && (
-        <div className="error-banner">
-          <AlertTriangle size={14} />
-          <span>Backend connection issue: {error}</span>
-          <button className="btn btn-ghost btn-sm" onClick={loadData}>Retry</button>
+      {/* Connection Banner */}
+      {apiOnline === false && (
+        <div className="connection-banner">
+          <WifiOff size={13} />
+          <span>Backend offline — showing cached data. Live features require the API server.</span>
+          <button className="banner-retry" onClick={loadData}>
+            <Wifi size={12} /> Retry
+          </button>
         </div>
       )}
 
       <div className="app-body">
         {/* Navigation Sidebar */}
         <nav
-          className={`nav-sidebar ${isNavExpanded ? 'expanded' : ''}`}
+          className={`nav-sidebar ${navHovered ? 'expanded' : ''}`}
           onMouseEnter={() => setNavHovered(true)}
           onMouseLeave={() => setNavHovered(false)}
         >
-          {/* Brand mini when collapsed */}
-          {!isNavExpanded && (
-            <div className="nav-brand-mini">
-              <Shield size={18} style={{ color: 'var(--accent-blue)' }} />
+          <div className="nav-brand">
+            <div className="nav-brand-icon">
+              <Shield size={15} />
             </div>
-          )}
-          {isNavExpanded && (
-            <div className="nav-brand-full">
-              <div className="nav-brand-icon"><Shield size={16} /></div>
-              <span>ChainGuard</span>
-              <span className="nav-brand-ver">3.0</span>
-            </div>
-          )}
+            {navHovered && (
+              <span className="nav-brand-text">
+                ChainGuard <span className="nav-brand-ver">3.0</span>
+              </span>
+            )}
+          </div>
 
           <div className="nav-items">
             {NAV_ITEMS.filter(n => n.group === 'main').map(item => {
@@ -146,21 +149,28 @@ export default function App() {
                   key={item.id}
                   className={`nav-btn ${isActive ? 'active' : ''}`}
                   onClick={() => setActiveView(item.id)}
-                  style={isActive ? { '--nav-color': item.color } : {}}
-                  title={!isNavExpanded ? item.label : undefined}
+                  title={item.label}
                 >
-                  {isActive && <div className="nav-active-bar" style={{ background: item.color }} />}
-                  <div className="nav-icon" style={{ color: isActive ? item.color : undefined }}>
-                    <Icon size={17} />
+                  {isActive && <div className="nav-active-indicator" style={{ background: item.color }} />}
+                  <div className="nav-icon-wrap" style={{ color: isActive ? item.color : undefined }}>
+                    <Icon size={18} />
                   </div>
-                  {isNavExpanded && <span className="nav-label-text">{item.label}</span>}
-                  {badge > 0 && <span className="nav-badge">{badge}</span>}
+                  {navHovered && (
+                    <span className="nav-btn-label" style={{ color: isActive ? item.color : undefined }}>
+                      {item.label}
+                    </span>
+                  )}
+                  {badge > 0 && (
+                    <span className={`nav-badge ${navHovered ? '' : 'nav-badge-dot'}`}>
+                      {navHovered ? badge : ''}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          <div className="nav-bottom">
+          <div className="nav-footer">
             {NAV_ITEMS.filter(n => n.group === 'bottom').map(item => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
@@ -169,20 +179,30 @@ export default function App() {
                   key={item.id}
                   className={`nav-btn ${isActive ? 'active' : ''}`}
                   onClick={() => setActiveView(item.id)}
-                  title={!isNavExpanded ? item.label : undefined}
+                  title={item.label}
                 >
-                  {isActive && <div className="nav-active-bar" style={{ background: item.color }} />}
-                  <div className="nav-icon" style={{ color: isActive ? item.color : undefined }}>
-                    <Icon size={17} />
+                  {isActive && <div className="nav-active-indicator" style={{ background: item.color }} />}
+                  <div className="nav-icon-wrap" style={{ color: isActive ? item.color : undefined }}>
+                    <Icon size={18} />
                   </div>
-                  {isNavExpanded && <span className="nav-label-text">{item.label}</span>}
+                  {navHovered && (
+                    <span className="nav-btn-label" style={{ color: isActive ? item.color : undefined }}>
+                      {item.label}
+                    </span>
+                  )}
                 </button>
               );
             })}
+            {navHovered && (
+              <div className="nav-api-status">
+                <div className={`api-dot ${apiOnline === true ? 'online' : apiOnline === false ? 'offline' : 'unknown'}`} />
+                <span>{apiOnline === true ? 'API Online' : apiOnline === false ? 'API Offline' : 'Connecting...'}</span>
+              </div>
+            )}
           </div>
         </nav>
 
-        {/* Main Content */}
+        {/* Main Content — all views use flex:1 so they fill the space */}
         <div className="app-main">
 
           {/* COMMAND CENTER */}
@@ -190,18 +210,17 @@ export default function App() {
             <div className="command-center animate-fade-in">
               {/* Left Sidebar */}
               <div className="app-sidebar-left">
-                {/* KPI mini strip */}
                 <div className="sidebar-kpi-strip">
-                  <div className="kpi-mini" title="Shipments">
-                    <span style={{color:'#38bdf8'}}>{stats?.total_shipments || shipments.length || 0}</span>
-                    <small>Ships</small>
+                  <div className="kpi-mini">
+                    <span style={{color:'#38bdf8'}}>{safeStats.total_shipments || shipments.length || 0}</span>
+                    <small>Shipments</small>
                   </div>
-                  <div className="kpi-mini" title="Active Disruptions">
-                    <span style={{color:'#f87171'}}>{alertCount}</span>
+                  <div className="kpi-mini" style={{borderColor: alertCount > 0 ? 'rgba(248,113,113,0.2)' : undefined}}>
+                    <span style={{color: alertCount > 0 ? '#f87171' : '#34d399'}}>{alertCount}</span>
                     <small>Alerts</small>
                   </div>
-                  <div className="kpi-mini" title="Decisions Made">
-                    <span style={{color:'#34d399'}}>{stats?.decisions_made || 0}</span>
+                  <div className="kpi-mini">
+                    <span style={{color:'#a78bfa'}}>{safeStats.decisions_made || 0}</span>
                     <small>Decided</small>
                   </div>
                 </div>
@@ -219,15 +238,11 @@ export default function App() {
                     <button
                       className={`sidebar-tab ${bottomTab === 'disruptions' ? 'active' : ''}`}
                       onClick={() => setBottomTab('disruptions')}
-                    >
-                      ⚡ Simulator
-                    </button>
+                    >⚡ Simulator</button>
                     <button
                       className={`sidebar-tab ${bottomTab === 'whatif' ? 'active' : ''}`}
                       onClick={() => setBottomTab('whatif')}
-                    >
-                      🧠 What-If AI
-                    </button>
+                    >🧠 What-If AI</button>
                   </div>
                   <div className="sidebar-tab-content">
                     {bottomTab === 'disruptions' && (
@@ -255,18 +270,15 @@ export default function App() {
                 />
               </div>
 
-              {/* Right Panel */}
-              {selectedShipment && (
+              {/* Right: Alert Feed or Shipment Panel */}
+              {selectedShipment ? (
                 <ShipmentPanel
                   shipment={selectedShipment}
                   activeDisruptions={activeDisruptions}
                   onClose={() => setSelectedShipment(null)}
                   onDecisionMade={loadData}
                 />
-              )}
-
-              {/* Alert Feed overlay when no shipment selected */}
-              {!selectedShipment && (
+              ) : (
                 <div className="app-alert-feed">
                   <AlertFeed activeDisruptions={activeDisruptions} shipments={shipments} />
                 </div>
@@ -276,42 +288,54 @@ export default function App() {
 
           {/* DECISION CENTER */}
           {activeView === 'decisions' && (
-            <DecisionCenter
-              activeDisruptions={activeDisruptions}
-              onDecisionMade={loadData}
-            />
+            <div className="full-view">
+              <DecisionCenter activeDisruptions={activeDisruptions} onDecisionMade={loadData} />
+            </div>
           )}
 
           {/* WAR ROOM */}
           {activeView === 'warroom' && (
-            <WarRoom activeDisruptions={activeDisruptions} shipments={shipments} stats={stats} />
+            <div className="full-view">
+              <WarRoom activeDisruptions={activeDisruptions} shipments={shipments} stats={safeStats} />
+            </div>
           )}
 
           {/* SUPPLIER NETWORK */}
           {activeView === 'suppliers' && (
-            <SupplierGraph suppliers={suppliers} />
+            <div className="full-view">
+              <SupplierGraph suppliers={suppliers} />
+            </div>
           )}
 
           {/* ANALYTICS */}
           {activeView === 'analytics' && (
-            <div className="analytics-view animate-fade-in">
-              <KPICards stats={stats} shipments={shipments} />
-              <Analytics stats={stats} shipments={shipments} />
+            <div className="full-view analytics-scroll">
+              <div className="analytics-inner">
+                <KPICards stats={safeStats} shipments={shipments} />
+                <Analytics stats={safeStats} shipments={shipments} />
+              </div>
             </div>
           )}
 
           {/* SETTINGS */}
-          {activeView === 'settings' && <SettingsPage />}
+          {activeView === 'settings' && (
+            <div className="full-view">
+              <SettingsPage />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Bottom Stats Bar */}
-      <StatsBar stats={stats} />
+      <StatsBar stats={safeStats} />
 
       {/* Floating AI Chat */}
       <ChatWidget />
 
       <style>{`
+        /* ══════════════════════════════════════════════
+           APP SHELL
+        ══════════════════════════════════════════════ */
         .app-shell {
           display: flex;
           flex-direction: column;
@@ -319,105 +343,125 @@ export default function App() {
           overflow: hidden;
           background: var(--bg-primary);
         }
-        .error-banner {
+
+        /* ── Connection Banner ── */
+        .connection-banner {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 10px;
-          padding: 7px 16px;
-          background: rgba(248,113,113,0.07);
-          border-bottom: 1px solid rgba(248,113,113,0.18);
-          color: var(--status-critical);
-          font-size: 0.8rem;
+          padding: 6px 16px;
+          background: rgba(248,113,113,0.06);
+          border-bottom: 1px solid rgba(248,113,113,0.15);
+          color: rgba(248,113,113,0.9);
+          font-size: 0.78rem;
           font-weight: 500;
+          flex-shrink: 0;
         }
+        .banner-retry {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px 10px;
+          border-radius: var(--radius-full);
+          background: rgba(248,113,113,0.12);
+          border: 1px solid rgba(248,113,113,0.25);
+          color: inherit;
+          font-size: 0.72rem;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: var(--font-sans);
+          transition: all var(--transition-fast);
+          margin-left: 8px;
+        }
+        .banner-retry:hover { background: rgba(248,113,113,0.2); }
+
+        /* ══════════════════════════════════════════════
+           BODY LAYOUT
+        ══════════════════════════════════════════════ */
         .app-body {
           flex: 1;
           display: flex;
           overflow: hidden;
+          min-height: 0;
         }
 
-        /* ── Navigation Sidebar ── */
+        /* ══════════════════════════════════════════════
+           NAVIGATION SIDEBAR
+        ══════════════════════════════════════════════ */
         .nav-sidebar {
-          width: 56px;
+          width: 58px;
           display: flex;
           flex-direction: column;
           background: var(--bg-secondary);
           border-right: 1px solid var(--border-subtle);
           flex-shrink: 0;
-          transition: width var(--transition-base);
+          transition: width 200ms cubic-bezier(0.4,0,0.2,1);
           overflow: hidden;
-          z-index: 200;
+          z-index: 100;
         }
-        .nav-sidebar.expanded {
-          width: 210px;
-        }
-        .nav-brand-mini {
-          height: 48px;
+        .nav-sidebar.expanded { width: 216px; }
+
+        .nav-brand {
+          height: 50px;
           display: flex;
           align-items: center;
-          justify-content: center;
+          gap: 10px;
+          padding: 0 17px;
           border-bottom: 1px solid var(--border-subtle);
+          flex-shrink: 0;
         }
-        .nav-brand-full {
-          height: 48px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 0 14px;
-          border-bottom: 1px solid var(--border-subtle);
-          white-space: nowrap;
-          font-weight: 800;
-          font-size: 0.95rem;
+        .nav-brand-icon {
+          width: 26px; height: 26px;
+          border-radius: var(--radius-sm);
+          background: var(--gradient-primary);
+          display: flex; align-items: center; justify-content: center;
+          color: white; flex-shrink: 0;
+        }
+        .nav-brand-text {
+          font-weight: 800; font-size: 0.92rem;
           background: var(--gradient-primary);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-        }
-        .nav-brand-icon {
-          width: 28px;
-          height: 28px;
-          border-radius: var(--radius-sm);
-          background: var(--gradient-primary);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          flex-shrink: 0;
-          -webkit-text-fill-color: white;
+          white-space: nowrap;
         }
         .nav-brand-ver {
-          font-size: 0.65rem;
-          color: var(--text-muted);
+          font-size: 0.68rem; font-weight: 600;
           -webkit-text-fill-color: var(--text-muted);
-          font-weight: 600;
+          color: var(--text-muted);
           letter-spacing: 0.05em;
         }
+
         .nav-items {
           flex: 1;
           display: flex;
           flex-direction: column;
-          padding: 8px 0;
-          gap: 2px;
+          padding: 10px 0;
+          gap: 1px;
+          overflow: hidden;
         }
-        .nav-bottom {
+        .nav-footer {
           padding: 8px 0;
           border-top: 1px solid var(--border-subtle);
+          flex-shrink: 0;
         }
+
         .nav-btn {
           position: relative;
           width: 100%;
-          min-height: 42px;
+          min-height: 44px;
           border: none;
           background: transparent;
           color: var(--text-muted);
           cursor: pointer;
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 0 18px;
-          transition: all var(--transition-fast);
+          gap: 12px;
+          padding: 0 20px;
+          transition: background 150ms ease, color 150ms ease;
           font-family: var(--font-sans);
+          text-align: left;
           overflow: hidden;
         }
         .nav-btn:hover {
@@ -426,113 +470,138 @@ export default function App() {
         }
         .nav-btn.active {
           background: rgba(56,189,248,0.07);
-          color: var(--text-primary);
         }
-        .nav-active-bar {
+        .nav-active-indicator {
           position: absolute;
-          left: 0;
-          top: 20%;
-          width: 3px;
-          height: 60%;
+          left: 0; top: 22%; width: 3px; height: 56%;
           border-radius: 0 3px 3px 0;
         }
-        .nav-icon {
+        .nav-icon-wrap {
           flex-shrink: 0;
           width: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
+          transition: color 150ms ease;
         }
-        .nav-label-text {
-          font-size: 0.82rem;
-          font-weight: 600;
-          white-space: nowrap;
-          color: inherit;
+        .nav-btn-label {
+          font-size: 0.84rem; font-weight: 600;
+          white-space: nowrap; color: inherit;
+          transition: color 150ms ease;
         }
         .nav-badge {
           margin-left: auto;
-          min-width: 18px;
-          height: 18px;
+          min-width: 20px; height: 20px;
           border-radius: var(--radius-full);
-          background: var(--status-critical);
-          color: white;
-          font-size: 0.6rem;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0 4px;
+          background: #f87171; color: white;
+          font-size: 0.62rem; font-weight: 800;
+          display: flex; align-items: center; justify-content: center;
+          padding: 0 5px;
+        }
+        .nav-badge-dot {
+          width: 8px; height: 8px;
+          min-width: unset; padding: 0;
+          position: absolute; top: 9px; right: 9px;
           animation: pulse-dot 2s infinite;
         }
 
-        /* ── Main Content ── */
+        .nav-api-status {
+          display: flex; align-items: center; gap: 7px;
+          padding: 8px 20px 4px;
+          font-size: 0.68rem; color: var(--text-muted);
+          white-space: nowrap;
+        }
+        .api-dot {
+          width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .api-dot.online { background: #34d399; animation: pulse-dot 2s infinite; }
+        .api-dot.offline { background: #f87171; }
+        .api-dot.unknown { background: #fbbf24; animation: pulse-dot 1s infinite; }
+
+        /* ══════════════════════════════════════════════
+           MAIN CONTENT
+        ══════════════════════════════════════════════ */
         .app-main {
           flex: 1;
+          min-width: 0;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        /* All full-page views use this wrapper */
+        .full-view {
+          flex: 1;
+          min-height: 0;
           overflow: hidden;
           display: flex;
           flex-direction: column;
         }
 
-        /* ── Command Center Layout ── */
+        /* ── Command Center ── */
         .command-center {
           flex: 1;
+          min-height: 0;
           display: flex;
           overflow: hidden;
-          position: relative;
         }
         .app-sidebar-left {
-          width: 280px;
+          width: 290px;
+          flex-shrink: 0;
           display: flex;
           flex-direction: column;
           background: var(--bg-glass-strong);
           backdrop-filter: blur(16px);
           border-right: 1px solid var(--border-subtle);
           overflow: hidden;
-          flex-shrink: 0;
         }
         .sidebar-kpi-strip {
           display: flex;
+          flex-shrink: 0;
           border-bottom: 1px solid var(--border-subtle);
-          padding: 8px 0;
         }
         .kpi-mini {
           flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1px;
-          padding: 4px;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          gap: 1px; padding: 10px 4px;
           border-right: 1px solid var(--border-subtle);
+          transition: background var(--transition-fast);
         }
         .kpi-mini:last-child { border-right: none; }
-        .kpi-mini span { font-size: 1.1rem; font-weight: 900; font-family: var(--font-mono); }
-        .kpi-mini small { font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; }
+        .kpi-mini:hover { background: rgba(255,255,255,0.02); }
+        .kpi-mini span {
+          font-size: 1.25rem; font-weight: 900;
+          font-family: var(--font-mono); line-height: 1;
+        }
+        .kpi-mini small {
+          font-size: 0.6rem; color: var(--text-muted);
+          text-transform: uppercase; letter-spacing: 0.05em;
+        }
         .sidebar-shipments {
           flex: 1;
           overflow: hidden;
-          display: flex;
-          flex-direction: column;
+          display: flex; flex-direction: column;
           min-height: 0;
         }
         .sidebar-bottom-section {
-          display: flex;
-          flex-direction: column;
+          flex-shrink: 0;
+          display: flex; flex-direction: column;
           border-top: 1px solid var(--border-subtle);
-          max-height: 45%;
-          min-height: 180px;
+          height: 42%;
+          min-height: 190px;
+          max-height: 340px;
         }
         .sidebar-tabs {
           display: flex;
+          flex-shrink: 0;
           border-bottom: 1px solid var(--border-subtle);
         }
         .sidebar-tab {
           flex: 1;
-          padding: 7px;
-          font-size: 0.73rem;
-          font-weight: 600;
+          padding: 8px 4px;
+          font-size: 0.75rem; font-weight: 600;
           color: var(--text-muted);
-          background: none;
-          border: none;
+          background: none; border: none;
           border-bottom: 2px solid transparent;
           cursor: pointer;
           font-family: var(--font-sans);
@@ -542,29 +611,29 @@ export default function App() {
         .sidebar-tab.active {
           color: var(--accent-blue);
           border-bottom-color: var(--accent-blue);
+          background: rgba(56,189,248,0.04);
         }
         .sidebar-tab-content {
-          flex: 1;
-          overflow-y: auto;
+          flex: 1; overflow-y: auto; min-height: 0;
         }
         .app-center {
-          flex: 1;
+          flex: 1; min-width: 0;
           padding: 8px;
-          min-width: 0;
-          position: relative;
         }
         .app-alert-feed {
-          width: 280px;
-          flex-shrink: 0;
+          width: 290px; flex-shrink: 0;
           border-left: 1px solid var(--border-subtle);
           overflow: hidden;
+          display: flex; flex-direction: column;
         }
 
-        /* ── Analytics view ── */
-        .analytics-view {
-          padding: 24px;
-          height: 100%;
+        /* ── Analytics scroll container ── */
+        .analytics-scroll {
           overflow-y: auto;
+        }
+        .analytics-inner {
+          padding: 24px;
+          min-height: 100%;
         }
       `}</style>
     </div>

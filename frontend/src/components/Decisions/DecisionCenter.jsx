@@ -163,7 +163,7 @@ export default function DecisionCenter({ activeDisruptions = [], onDecisionMade 
       </div>
 
       <style>{`
-        .dc-page { padding: 24px; height: 100%; overflow-y: auto; }
+        .dc-page { display: flex; flex-direction: column; height: 100%; overflow-y: auto; padding: 24px; }
         .dc-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .dc-hdr-left { display: flex; gap: 12px; align-items: center; }
         .dc-hdr-icon { width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2); display: flex; align-items: center; justify-content: center; color: var(--status-safe); }
