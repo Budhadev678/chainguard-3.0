@@ -1,2 +1,1 @@
-// ChainGuard 3.0 — API Configuration
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'https://chainguard-v3-production.up.railway.app/api';
