@@ -9,17 +9,18 @@ import InfoTooltip from '../InfoTooltip';
 const DECISIONS = [
   {
     id: 'dec-001',
-    shipmentName: 'APAC-EU Semiconductor Run',
+    shipmentName: 'MV-Orion',
     shipmentId: 'SHP-001',
     type: 'vessel',
-    disruption: 'Suez Canal Closure',
+    disruption: 'Pacific Corridor Typhoon',
     severity: 'critical',
-    aiRec: 'Reroute via Cape of Good Hope — adds 8 days but avoids $4.2M loss exposure.',
+    aiRec: 'Activate backup supplier in Mexico. Saves the most time, lowest total cost.',
     options: [
-      { id: 'opt-a', label: 'Reroute via Cape', savingsM: 4.2, delayDays: 8, confidence: 91 },
-      { id: 'opt-b', label: 'Split & Air-freight 40%', savingsM: 3.1, delayDays: 2, confidence: 76 },
+      { id: 'opt-c', label: 'Activate Mexico Supplier', savingsM: 4.2, delayDays: 0, confidence: 95 },
+      { id: 'opt-b', label: 'Split & Air Freight Dubai', savingsM: 1.8, delayDays: 4, confidence: 82 },
+      { id: 'opt-a', label: 'Reroute via Cape Horn', savingsM: -0.06, delayDays: 10, confidence: 60 },
     ],
-    urgency: 'high', expiresIn: '2h 15m',
+    urgency: 'high', expiresIn: '0h 45m',
   },
   {
     id: 'dec-002',
@@ -138,7 +139,7 @@ export default function DecisionCenter({ activeDisruptions = [], onDecisionMade 
                       <span className="dc-opt-conf">{opt.confidence}%</span>
                     </div>
                     <div className="dc-opt-stats">
-                      <span style={{color:'#34d399'}}><DollarSign size={10}/>${opt.savingsM}M</span>
+                      <span style={{color:'#34d399'}}><DollarSign size={10}/>₹{opt.savingsM > 0 ? opt.savingsM : 0}Cr</span>
                       <span style={{color:'#fbbf24'}}><Clock size={10}/>+{opt.delayDays}d</span>
                     </div>
                   </button>

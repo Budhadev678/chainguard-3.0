@@ -88,11 +88,28 @@ export async function fetchCascade(shipmentId, disruptionId) {
   try { return await request(`/cascade/${shipmentId}/${disruptionId}`); }
   catch {
     return {
-      cascade: [
-        { id: 'CAS-1', name: 'Samsung Korea Factory', type: 'supplier', delay_days: 3, loss: 1200000, severity: 'warning' },
-        { id: 'CAS-2', name: 'Rotterdam DC', type: 'warehouse', delay_days: 5, loss: 800000, severity: 'critical' },
-        { id: 'CAS-3', name: 'EU Assembly Line', type: 'factory', delay_days: 8, loss: 2600000, severity: 'critical' },
-      ]
+      do_nothing: {
+        total_loss: 23000000,
+        affected_warehouses: 2,
+        affected_factories: 3,
+        affected_retailers: 12,
+        orders_failed: 847,
+        timeline: [
+          { day: 2, event: 'Warehouses fall below safety stock', severity: 'warning', financial_impact: 0 },
+          { day: 4, event: 'Factories pause production', severity: 'critical', financial_impact: 0 },
+          { day: 14, event: '2.3 crore rupees lost, 847 orders failed', severity: 'critical', financial_impact: 23000000 },
+        ]
+      },
+      act_now: {
+        total_cost: 14000,
+        loss_avoided: 23000000,
+        timeline: [
+          { day: 1, event: 'Execute AI rerouting & supplier switch', severity: 'info' },
+          { day: 2, event: 'Warehouse buffer handles transit gap', severity: 'safe' },
+          { day: 5, event: 'Normal operations resume. Orders protected.', severity: 'resolved' },
+        ]
+      },
+      net_benefit: 22986000
     };
   }
 }
@@ -140,20 +157,18 @@ export async function runWhatIf(query) {
   catch {
     const q = query.toLowerCase();
     let answer = '';
-    if (q.includes('suez') || q.includes('canal')) {
-      answer = `## What-If: Suez Canal Closure
+    if (q.includes('suez') || q.includes('canal') || q.includes('two weeks')) {
+      answer = `## What-If: Suez Canal Closure (2 Weeks)
 
 **Impact on your fleet:**
-- **3 shipments directly affected** (SHP-001, SHP-005, SHP-008)
-- **Total loss at risk:** $21.4M
-- **Average rerouting cost:** +$280K per vessel via Cape
+- **47 shipments affected**
+- **₹12.4 crore at risk**
 
-**Recommended Actions:**
-1. Immediately reroute SHP-001 (Semiconductors) — highest value, highest urgency
-2. SHP-005 (Petrochemical) — reroute but negotiate demurrage insurance
-3. SHP-008 (Pharma) — air-freight alternative for temperature-sensitive cargo
+**Recommended Mitigation Strategy:**
+- Best strategy costs ₹89 lakhs
+- Saves everything else (100% loss avoidance on remaining value)
 
-**System Impact:** Rotterdam DC stock drops to 9 days (from 18) — trigger emergency resupply within 5 days.`;
+*Proactive planning executed.*`;
     } else if (q.includes('supplier') || q.includes('bankrupt')) {
       answer = `## What-If: Primary Supplier Failure
 

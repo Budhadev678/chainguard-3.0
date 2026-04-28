@@ -50,29 +50,31 @@ const KPI_CONFIG = [
     tooltip: 'Operational checkpoints or routing changes awaiting user confirmation.'
   },
   {
-    key: 'co2_impact',
-    dataKey: 'carbon_saved_tonnes',
-    label: 'CO₂ Impact',
-    icon: Leaf,
+    key: 'loss_prevented',
+    dataKey: 'total_loss_avoided',
+    label: 'Losses Prevented',
+    icon: TrendingUp,
     color: '#34d399',
     gradientFrom: 'rgba(52,211,153,0.15)',
     gradientTo: 'rgba(52,211,153,0.02)',
     borderColor: 'rgba(52,211,153,0.25)',
     trend: +12,
-    suffix: 't',
+    suffix: 'Cr',
+    prefix: '₹',
     subtitle: 'Saved This Month',
-    tooltip: 'Estimated carbon emissions offset through optimized routing and carrier selection.'
+    tooltip: 'Total estimated financial loss avoided through AI-recommended mitigation strategies.'
   },
 ];
 
-function CountUp({ target, suffix = '' }) {
+function CountUp({ target, suffix = '', prefix = '' }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     setCount(0);
     if (!target || target === 0) { setCount(0); return; }
     let start = 0;
-    const step = Math.max(1, Math.ceil(target / 40));
+    const isDecimal = target % 1 !== 0;
+    const step = isDecimal ? target / 40 : Math.max(1, Math.ceil(target / 40));
     const timer = setInterval(() => {
       start += step;
       if (start >= target) {
@@ -85,7 +87,8 @@ function CountUp({ target, suffix = '' }) {
     return () => clearInterval(timer);
   }, [target]);
 
-  return <>{count}{suffix}</>;
+  const displayVal = target % 1 !== 0 ? count.toFixed(2) : count;
+  return <>{prefix}{displayVal}{suffix}</>;
 }
 
 export default function KPICards({ stats = {}, shipments = [] }) {
@@ -93,9 +96,9 @@ export default function KPICards({ stats = {}, shipments = [] }) {
 
   const values = {
     total_shipments: stats.total_shipments || shipments.length || 0,
-    active_disruptions: highRiskCount,
+    active_disruptions: stats.active_disruptions || highRiskCount,
     decisions_made: Math.max(0, (stats.decisions_made || 0)),
-    carbon_saved_tonnes: stats.carbon_saved_tonnes || 0,
+    total_loss_avoided: stats.total_loss_avoided ? stats.total_loss_avoided / 10000000 : 0,
   };
 
   return (
@@ -132,7 +135,7 @@ export default function KPICards({ stats = {}, shipments = [] }) {
 
             {/* Value */}
             <div className="kpi-value" style={{ color: kpi.color }}>
-              <CountUp target={value} suffix={kpi.suffix} />
+              <CountUp target={value} suffix={kpi.suffix} prefix={kpi.prefix} />
             </div>
 
             {/* Label */}

@@ -8,13 +8,13 @@ export const MOCK_SHIPMENTS = {
   shipments: [
     {
       id: 'SHP-001',
-      name: 'APAC-EU Semiconductor Run',
-      cargo: 'Semiconductor Chips (TSMC)',
+      name: 'MV-Orion',
+      cargo: 'Semiconductor Chips',
       type: 'vessel',
       carrier: 'Evergreen Marine',
       containers: 42,
       value_usd: 18400000,
-      risk_score: 82,
+      risk_score: 91,
       risk_level: 'critical',
       progress_pct: 38,
       eta_days: 14,
@@ -257,13 +257,13 @@ export const MOCK_DISRUPTIONS = {
     },
     {
       id: 'DIS-002',
-      name: 'Bay of Bengal Cyclone',
+      name: 'Pacific Corridor Typhoon',
       type: 'weather',
-      severity: 'warning',
-      description: 'Category 3 cyclone Mocha tracking through Bay of Bengal. Wind speeds 150 km/h. Vessels advised to deviate south.',
-      affected_region: { lat: 15.0, lng: 87.0, radius_km: 600 },
-      affected_shipments: ['SHP-003'],
-      impact: { estimated_loss: 1800000, delay_days: 3 },
+      severity: 'critical',
+      description: 'Super typhoon tracking through the Pacific corridor. Extreme risk to vessels. Re-routing required immediately.',
+      affected_region: { lat: 15.0, lng: 130.0, radius_km: 800 },
+      affected_shipments: ['SHP-001'],
+      impact: { estimated_loss: 600000, delay_days: 10 },
       active: false,
     },
     {
@@ -381,10 +381,10 @@ export const MOCK_SUPPLIERS = {
 };
 
 export const MOCK_STATS = {
-  total_shipments: 8,
-  active_disruptions: 0,
-  decisions_made: 3,
-  total_loss_avoided: 4200000,
+  total_shipments: 10,
+  active_disruptions: 3,
+  decisions_made: 2,
+  total_loss_avoided: 33700000,
   carbon_saved_tonnes: 142,
   avg_risk_score: 54.6,
   critical_suppliers: 1,

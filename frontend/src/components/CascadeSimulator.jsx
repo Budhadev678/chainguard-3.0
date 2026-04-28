@@ -33,7 +33,7 @@ export default function CascadeSimulator({ data }) {
       <div className="cascade-summary">
         <div className="cascade-card cascade-danger">
           <div className="cc-label">If You Do Nothing</div>
-          <div className="cc-value">${(do_nothing.total_loss / 1000000).toFixed(1)}M</div>
+          <div className="cc-value">₹{(do_nothing.total_loss / 10000000).toFixed(1)}Cr</div>
           <div className="cc-sublabel">Total Loss</div>
           <div className="cc-details">
             <span>📦 {do_nothing.affected_warehouses} warehouses</span>
@@ -45,11 +45,11 @@ export default function CascadeSimulator({ data }) {
 
         <div className="cascade-card cascade-success">
           <div className="cc-label">If You Act Now</div>
-          <div className="cc-value">${(act_now.total_cost / 1000000).toFixed(2)}M</div>
+          <div className="cc-value">₹{(act_now.total_cost / 1000).toFixed(0)}K</div>
           <div className="cc-sublabel">Rerouting Cost</div>
           <div className="cc-benefit">
             <CheckCircle size={14} />
-            <span>Save ${(act_now.loss_avoided / 1000000).toFixed(1)}M</span>
+            <span>Save ₹{(act_now.loss_avoided / 10000000).toFixed(1)}Cr</span>
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function CascadeSimulator({ data }) {
         transition={{ delay: 0.3 }}
       >
         <DollarSign size={18} />
-        <span>Net Benefit: <strong>${(net_benefit / 1000000).toFixed(1)}M SAVED</strong></span>
+        <span>Net Benefit: <strong>₹{(net_benefit / 10000000).toFixed(2)}Cr SAVED</strong></span>
       </motion.div>
 
       {/* Timelines */}
@@ -94,7 +94,7 @@ export default function CascadeSimulator({ data }) {
                 <p className="te-event">{event.event}</p>
                 {event.financial_impact > 0 && (
                   <span className="te-impact" style={{ color: SEVERITY_COLORS[event.severity] }}>
-                    💰 ${(event.financial_impact / 1000000).toFixed(2)}M
+                    💰 ₹{(event.financial_impact / 10000000).toFixed(1)}Cr
                   </span>
                 )}
               </div>

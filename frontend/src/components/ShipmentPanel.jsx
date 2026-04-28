@@ -154,7 +154,7 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
         <div className="sp-meta-row">
           <span className={`badge badge-${riskLevel}`}>{riskLevel.toUpperCase()}</span>
           <span className="sp-meta"><Package size={12} /> {shipment.cargo}</span>
-          <span className="sp-meta"><DollarSign size={12} /> ${((shipment.value_usd || shipment.cargo_value || 0) / 1000000).toFixed(1)}M</span>
+          <span className="sp-meta"><DollarSign size={12} /> ₹{((shipment.value_usd || shipment.cargo_value || 0) / 10000000).toFixed(2)}Cr</span>
         </div>
       </div>
 
@@ -223,7 +223,7 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
                     <p className="sp-dis-desc">{d.description}</p>
                     <div className="sp-dis-impact">
                       <span>⏱ +{d.impact.delay_days}d delay</span>
-                      <span>💰 ${(d.impact.estimated_loss / 1000000).toFixed(1)}M at risk</span>
+                      <span>💰 ₹{(d.impact.estimated_loss / 10000000).toFixed(2)}Cr at risk</span>
                     </div>
                     <div className="sp-dis-actions">
                       <div style={{ display: 'flex', alignItems: 'center' }}>
