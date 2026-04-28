@@ -30,25 +30,9 @@ export default function Analytics({ stats = {}, shipments = [] }) {
           <BarChart3 size={20} />
         </div>
         <div>
-          <h2 className="an-title">Analytics & Performance</h2>
-          <p className="an-subtitle">ChainGuard operational metrics and impact summary</p>
+          <h2 className="an-title">Performance Analytics</h2>
+          <p className="an-subtitle">Real-time operational metrics, risk intelligence & impact summary</p>
         </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="an-cards">
-        {cards.map((c, i) => {
-          const Icon = c.icon;
-          return (
-            <div key={i} className="an-card glass-panel animate-slide-up" style={{ animationDelay: `${i * 0.06}s` }}>
-              <div className="an-card-icon" style={{ color: c.color, background: `${c.color}12` }}>
-                <Icon size={18} />
-              </div>
-              <div className="an-card-value" style={{ color: c.color }}>{c.value}</div>
-              <div className="an-card-label">{c.label}</div>
-            </div>
-          );
-        })}
       </div>
 
       <div className="an-grid">

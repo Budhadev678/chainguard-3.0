@@ -1,9 +1,12 @@
 /**
  * ChainGuard 3.0 — AI-Powered Supply Chain Control Tower
- * Main Application Component with full navigation.
+ * Full PRD-compliant navigation and layout.
  */
 import { useState, useEffect, useCallback } from 'react';
-import { Map, AlertTriangle, FlaskConical, Users, BarChart3, Factory, Shield } from 'lucide-react';
+import {
+  Map, AlertTriangle, FlaskConical, Users, BarChart3, Factory,
+  Shield, CheckCircle2, Settings, HelpCircle, Menu, X, Zap
+} from 'lucide-react';
 import TopBar from './components/TopBar';
 import ShipmentMap from './components/ShipmentMap';
 import ShipmentList from './components/ShipmentList';
@@ -15,28 +18,26 @@ import WarRoom from './components/WarRoom/WarRoom';
 import SupplierGraph from './components/Suppliers/SupplierGraph';
 import Analytics from './components/Analytics/Analytics';
 import ChatWidget from './components/ChatWidget';
+import KPICards from './components/Dashboard/KPICards';
+import AlertFeed from './components/Dashboard/AlertFeed';
+import DecisionCenter from './components/Decisions/DecisionCenter';
+import SettingsPage from './components/Settings/SettingsPage';
 import {
-  fetchShipments,
-  fetchDisruptions,
-  fetchActiveDisruptions,
-  fetchWarehouses,
-  fetchSuppliers,
-  fetchStats,
-  simulateDisruption,
-  clearDisruptions,
+  fetchShipments, fetchDisruptions, fetchActiveDisruptions,
+  fetchWarehouses, fetchSuppliers, fetchStats,
+  simulateDisruption, clearDisruptions,
 } from './api';
 
 const NAV_ITEMS = [
-  { id: 'command', icon: Map, label: 'Command Center', color: '#38bdf8' },
-  { id: 'disruptions', icon: AlertTriangle, label: 'Disruptions', color: '#f87171' },
-  { id: 'whatif', icon: FlaskConical, label: 'What-If Lab', color: '#a78bfa' },
-  { id: 'warroom', icon: Users, label: 'War Room', color: '#22d3ee' },
-  { id: 'suppliers', icon: Factory, label: 'Suppliers', color: '#fbbf24' },
-  { id: 'analytics', icon: BarChart3, label: 'Analytics', color: '#34d399' },
+  { id: 'command',    icon: Map,          label: 'Command Center',  color: '#38bdf8', group: 'main' },
+  { id: 'decisions',  icon: CheckCircle2, label: 'Decision Center', color: '#34d399', group: 'main', badge: 'decisions' },
+  { id: 'warroom',    icon: Users,        label: 'War Room',        color: '#22d3ee', group: 'main', badge: 'alerts' },
+  { id: 'suppliers',  icon: Factory,      label: 'Supplier Network',color: '#fbbf24', group: 'main' },
+  { id: 'analytics',  icon: BarChart3,    label: 'Analytics',       color: '#a78bfa', group: 'main' },
+  { id: 'settings',   icon: Settings,     label: 'Settings',        color: '#64748b', group: 'bottom' },
 ];
 
 export default function App() {
-  // ── State ──
   const [shipments, setShipments] = useState([]);
   const [disruptions, setDisruptions] = useState([]);
   const [activeDisruptions, setActiveDisruptions] = useState([]);
@@ -48,19 +49,16 @@ export default function App() {
   const [error, setError] = useState(null);
   const [activeView, setActiveView] = useState('command');
   const [bottomTab, setBottomTab] = useState('disruptions');
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [navHovered, setNavHovered] = useState(false);
 
-  // ── Data Loading ──
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [shipRes, disRes, activeRes, whRes, supRes, statsRes] = await Promise.all([
-        fetchShipments(),
-        fetchDisruptions(),
-        fetchActiveDisruptions(),
-        fetchWarehouses(),
-        fetchSuppliers(),
-        fetchStats(),
+        fetchShipments(), fetchDisruptions(), fetchActiveDisruptions(),
+        fetchWarehouses(), fetchSuppliers(), fetchStats(),
       ]);
       setShipments(shipRes.shipments || []);
       setDisruptions(disRes.disruptions || []);
@@ -68,15 +66,12 @@ export default function App() {
       setWarehouses(whRes.warehouses || []);
       setSuppliers(supRes.suppliers || []);
       setStats(statsRes);
-
-      // Update selected shipment if it exists
       if (selectedShipment) {
         const updated = (shipRes.shipments || []).find(s => s.id === selectedShipment.id);
         if (updated) setSelectedShipment(updated);
       }
     } catch (e) {
       setError(e.message);
-      console.error('Failed to load data:', e);
     }
     setLoading(false);
   }, [selectedShipment?.id]);
@@ -87,106 +82,130 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // ── Actions ──
-  async function handleSimulateDisruption(disruptionId) {
-    try {
-      await simulateDisruption(disruptionId);
-      await loadData();
-    } catch (e) {
-      console.error('Failed to simulate:', e);
-    }
+  async function handleSimulateDisruption(id) {
+    try { await simulateDisruption(id); await loadData(); } catch(e) { console.error(e); }
   }
 
   async function handleClearDisruptions() {
-    try {
-      await clearDisruptions();
-      setSelectedShipment(null);
-      await loadData();
-    } catch (e) {
-      console.error('Failed to clear:', e);
-    }
+    try { await clearDisruptions(); setSelectedShipment(null); await loadData(); } catch(e) { console.error(e); }
   }
 
   function handleSelectShipment(shipment) {
     setSelectedShipment(prev => prev?.id === shipment.id ? null : shipment);
-    // Switch to command center if on another view
     if (activeView !== 'command') setActiveView('command');
   }
 
-  async function handleDecisionMade() {
-    await loadData();
-  }
-
-  function handleNavClick(viewId) {
-    setActiveView(viewId);
-    // For disruptions / whatif views, switch the bottom tab and stay on command
-    if (viewId === 'disruptions') {
-      setActiveView('command');
-      setBottomTab('disruptions');
-    } else if (viewId === 'whatif') {
-      setActiveView('command');
-      setBottomTab('whatif');
-    }
-  }
-
-  // Count alerts for nav badges
   const alertCount = activeDisruptions.length;
+  const pendingDecisions = 3; // Would come from API in full impl
+
+  const isNavExpanded = sidebarExpanded || navHovered;
 
   return (
     <div className="app-shell">
       {/* Top Bar */}
-      <TopBar
-        stats={stats}
-        activeDisruptions={activeDisruptions}
-        onRefresh={loadData}
-        loading={loading}
-      />
+      <TopBar stats={stats} activeDisruptions={activeDisruptions} onRefresh={loadData} loading={loading} />
 
       {/* Error Banner */}
       {error && (
         <div className="error-banner">
-          <span>⚠️ Backend connection error: {error}</span>
-          <span className="error-hint">Make sure the FastAPI server is running on port 8000</span>
+          <AlertTriangle size={14} />
+          <span>Backend connection issue: {error}</span>
+          <button className="btn btn-ghost btn-sm" onClick={loadData}>Retry</button>
         </div>
       )}
 
       <div className="app-body">
         {/* Navigation Sidebar */}
-        <nav className="nav-sidebar">
-          {NAV_ITEMS.map(item => {
-            const Icon = item.icon;
-            const isActive = activeView === item.id ||
-              (activeView === 'command' && (item.id === 'disruptions' || item.id === 'whatif'));
-            const showBadge = item.id === 'warroom' && alertCount > 0;
-            return (
-              <button
-                key={item.id}
-                className={`nav-btn ${(activeView === item.id || 
-                  (activeView === 'command' && item.id === 'command')) ? 'active' : ''}`}
-                onClick={() => handleNavClick(item.id)}
-                title={item.label}
-              >
-                <Icon size={18} style={{ color: (activeView === item.id || 
-                  (activeView === 'command' && item.id === 'command'))
-                  ? item.color : undefined }} />
-                <span className="nav-label">{item.label}</span>
-                {showBadge && <span className="nav-badge">{alertCount}</span>}
-              </button>
-            );
-          })}
-          <div className="nav-spacer" />
-          <div className="nav-footer">
-            <Shield size={14} style={{ color: 'var(--accent-blue)', opacity: 0.4 }} />
+        <nav
+          className={`nav-sidebar ${isNavExpanded ? 'expanded' : ''}`}
+          onMouseEnter={() => setNavHovered(true)}
+          onMouseLeave={() => setNavHovered(false)}
+        >
+          {/* Brand mini when collapsed */}
+          {!isNavExpanded && (
+            <div className="nav-brand-mini">
+              <Shield size={18} style={{ color: 'var(--accent-blue)' }} />
+            </div>
+          )}
+          {isNavExpanded && (
+            <div className="nav-brand-full">
+              <div className="nav-brand-icon"><Shield size={16} /></div>
+              <span>ChainGuard</span>
+              <span className="nav-brand-ver">3.0</span>
+            </div>
+          )}
+
+          <div className="nav-items">
+            {NAV_ITEMS.filter(n => n.group === 'main').map(item => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              const badge = item.badge === 'alerts' ? alertCount :
+                            item.badge === 'decisions' ? pendingDecisions : 0;
+              return (
+                <button
+                  key={item.id}
+                  className={`nav-btn ${isActive ? 'active' : ''}`}
+                  onClick={() => setActiveView(item.id)}
+                  style={isActive ? { '--nav-color': item.color } : {}}
+                  title={!isNavExpanded ? item.label : undefined}
+                >
+                  {isActive && <div className="nav-active-bar" style={{ background: item.color }} />}
+                  <div className="nav-icon" style={{ color: isActive ? item.color : undefined }}>
+                    <Icon size={17} />
+                  </div>
+                  {isNavExpanded && <span className="nav-label-text">{item.label}</span>}
+                  {badge > 0 && <span className="nav-badge">{badge}</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="nav-bottom">
+            {NAV_ITEMS.filter(n => n.group === 'bottom').map(item => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  className={`nav-btn ${isActive ? 'active' : ''}`}
+                  onClick={() => setActiveView(item.id)}
+                  title={!isNavExpanded ? item.label : undefined}
+                >
+                  {isActive && <div className="nav-active-bar" style={{ background: item.color }} />}
+                  <div className="nav-icon" style={{ color: isActive ? item.color : undefined }}>
+                    <Icon size={17} />
+                  </div>
+                  {isNavExpanded && <span className="nav-label-text">{item.label}</span>}
+                </button>
+              );
+            })}
           </div>
         </nav>
 
-        {/* Main Content Area */}
+        {/* Main Content */}
         <div className="app-main">
-          {/* COMMAND CENTER VIEW */}
+
+          {/* COMMAND CENTER */}
           {activeView === 'command' && (
-            <div className="command-center">
-              {/* Left Sidebar — Shipment List + Controls */}
+            <div className="command-center animate-fade-in">
+              {/* Left Sidebar */}
               <div className="app-sidebar-left">
+                {/* KPI mini strip */}
+                <div className="sidebar-kpi-strip">
+                  <div className="kpi-mini" title="Shipments">
+                    <span style={{color:'#38bdf8'}}>{stats?.total_shipments || shipments.length || 0}</span>
+                    <small>Ships</small>
+                  </div>
+                  <div className="kpi-mini" title="Active Disruptions">
+                    <span style={{color:'#f87171'}}>{alertCount}</span>
+                    <small>Alerts</small>
+                  </div>
+                  <div className="kpi-mini" title="Decisions Made">
+                    <span style={{color:'#34d399'}}>{stats?.decisions_made || 0}</span>
+                    <small>Decided</small>
+                  </div>
+                </div>
+
                 <div className="sidebar-shipments">
                   <ShipmentList
                     shipments={shipments}
@@ -195,7 +214,6 @@ export default function App() {
                   />
                 </div>
 
-                {/* Bottom tabs in sidebar */}
                 <div className="sidebar-bottom-section">
                   <div className="sidebar-tabs">
                     <button
@@ -211,7 +229,6 @@ export default function App() {
                       🧠 What-If AI
                     </button>
                   </div>
-
                   <div className="sidebar-tab-content">
                     {bottomTab === 'disruptions' && (
                       <DisruptionControl
@@ -227,7 +244,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Center — Map */}
+              {/* Center Map */}
               <div className="app-center">
                 <ShipmentMap
                   shipments={shipments}
@@ -238,36 +255,53 @@ export default function App() {
                 />
               </div>
 
-              {/* Right Panel — Selected Shipment Details */}
+              {/* Right Panel */}
               {selectedShipment && (
                 <ShipmentPanel
                   shipment={selectedShipment}
                   activeDisruptions={activeDisruptions}
                   onClose={() => setSelectedShipment(null)}
-                  onDecisionMade={handleDecisionMade}
+                  onDecisionMade={loadData}
                 />
+              )}
+
+              {/* Alert Feed overlay when no shipment selected */}
+              {!selectedShipment && (
+                <div className="app-alert-feed">
+                  <AlertFeed activeDisruptions={activeDisruptions} shipments={shipments} />
+                </div>
               )}
             </div>
           )}
 
-          {/* WAR ROOM VIEW */}
-          {activeView === 'warroom' && (
-            <WarRoom
+          {/* DECISION CENTER */}
+          {activeView === 'decisions' && (
+            <DecisionCenter
               activeDisruptions={activeDisruptions}
-              shipments={shipments}
-              stats={stats}
+              onDecisionMade={loadData}
             />
           )}
 
-          {/* SUPPLIER NETWORK VIEW */}
+          {/* WAR ROOM */}
+          {activeView === 'warroom' && (
+            <WarRoom activeDisruptions={activeDisruptions} shipments={shipments} stats={stats} />
+          )}
+
+          {/* SUPPLIER NETWORK */}
           {activeView === 'suppliers' && (
             <SupplierGraph suppliers={suppliers} />
           )}
 
-          {/* ANALYTICS VIEW */}
+          {/* ANALYTICS */}
           {activeView === 'analytics' && (
-            <Analytics stats={stats} shipments={shipments} />
+            <div className="analytics-view animate-fade-in">
+              <KPICards stats={stats} shipments={shipments} />
+              <Analytics stats={stats} shipments={shipments} />
+            </div>
           )}
+
+          {/* SETTINGS */}
+          {activeView === 'settings' && <SettingsPage />}
         </div>
       </div>
 
@@ -289,17 +323,13 @@ export default function App() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 12px;
-          padding: 8px 16px;
-          background: rgba(248,113,113,0.08);
-          border-bottom: 1px solid rgba(248,113,113,0.2);
+          gap: 10px;
+          padding: 7px 16px;
+          background: rgba(248,113,113,0.07);
+          border-bottom: 1px solid rgba(248,113,113,0.18);
           color: var(--status-critical);
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           font-weight: 500;
-        }
-        .error-hint {
-          font-size: 0.72rem;
-          color: var(--text-muted);
         }
         .app-body {
           flex: 1;
@@ -309,87 +339,131 @@ export default function App() {
 
         /* ── Navigation Sidebar ── */
         .nav-sidebar {
-          width: 60px;
+          width: 56px;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          padding: 10px 0;
-          gap: 2px;
           background: var(--bg-secondary);
           border-right: 1px solid var(--border-subtle);
           flex-shrink: 0;
+          transition: width var(--transition-base);
+          overflow: hidden;
+          z-index: 200;
+        }
+        .nav-sidebar.expanded {
+          width: 210px;
+        }
+        .nav-brand-mini {
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-bottom: 1px solid var(--border-subtle);
+        }
+        .nav-brand-full {
+          height: 48px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0 14px;
+          border-bottom: 1px solid var(--border-subtle);
+          white-space: nowrap;
+          font-weight: 800;
+          font-size: 0.95rem;
+          background: var(--gradient-primary);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .nav-brand-icon {
+          width: 28px;
+          height: 28px;
+          border-radius: var(--radius-sm);
+          background: var(--gradient-primary);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          flex-shrink: 0;
+          -webkit-text-fill-color: white;
+        }
+        .nav-brand-ver {
+          font-size: 0.65rem;
+          color: var(--text-muted);
+          -webkit-text-fill-color: var(--text-muted);
+          font-weight: 600;
+          letter-spacing: 0.05em;
+        }
+        .nav-items {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 8px 0;
+          gap: 2px;
+        }
+        .nav-bottom {
+          padding: 8px 0;
+          border-top: 1px solid var(--border-subtle);
         }
         .nav-btn {
           position: relative;
-          width: 44px;
-          height: 44px;
+          width: 100%;
+          min-height: 42px;
           border: none;
-          border-radius: var(--radius-md);
           background: transparent;
           color: var(--text-muted);
           cursor: pointer;
           display: flex;
           align-items: center;
-          justify-content: center;
+          gap: 10px;
+          padding: 0 18px;
           transition: all var(--transition-fast);
+          font-family: var(--font-sans);
+          overflow: hidden;
         }
         .nav-btn:hover {
-          background: var(--bg-tertiary);
-          color: var(--text-primary);
+          background: rgba(255,255,255,0.04);
+          color: var(--text-secondary);
         }
         .nav-btn.active {
-          background: rgba(56,189,248,0.08);
-          color: var(--accent-blue);
+          background: rgba(56,189,248,0.07);
+          color: var(--text-primary);
         }
-        .nav-btn.active::before {
-          content: '';
+        .nav-active-bar {
           position: absolute;
           left: 0;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 20%;
           width: 3px;
-          height: 20px;
+          height: 60%;
           border-radius: 0 3px 3px 0;
-          background: var(--accent-blue);
         }
-        .nav-label {
-          position: absolute;
-          left: 56px;
-          background: var(--bg-secondary);
-          border: 1px solid var(--border-medium);
-          padding: 4px 10px;
-          border-radius: var(--radius-sm);
-          font-size: 0.72rem;
+        .nav-icon {
+          flex-shrink: 0;
+          width: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .nav-label-text {
+          font-size: 0.82rem;
           font-weight: 600;
           white-space: nowrap;
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.15s ease;
-          z-index: 100;
-          color: var(--text-primary);
-          box-shadow: var(--shadow-md);
-        }
-        .nav-btn:hover .nav-label {
-          opacity: 1;
+          color: inherit;
         }
         .nav-badge {
-          position: absolute;
-          top: 4px;
-          right: 4px;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
+          margin-left: auto;
+          min-width: 18px;
+          height: 18px;
+          border-radius: var(--radius-full);
           background: var(--status-critical);
           color: white;
-          font-size: 0.55rem;
+          font-size: 0.6rem;
           font-weight: 800;
           display: flex;
           align-items: center;
           justify-content: center;
+          padding: 0 4px;
           animation: pulse-dot 2s infinite;
         }
-        .nav-spacer { flex: 1; }
-        .nav-footer { padding: 8px; opacity: 0.6; }
 
         /* ── Main Content ── */
         .app-main {
@@ -407,7 +481,7 @@ export default function App() {
           position: relative;
         }
         .app-sidebar-left {
-          width: 300px;
+          width: 280px;
           display: flex;
           flex-direction: column;
           background: var(--bg-glass-strong);
@@ -416,6 +490,23 @@ export default function App() {
           overflow: hidden;
           flex-shrink: 0;
         }
+        .sidebar-kpi-strip {
+          display: flex;
+          border-bottom: 1px solid var(--border-subtle);
+          padding: 8px 0;
+        }
+        .kpi-mini {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1px;
+          padding: 4px;
+          border-right: 1px solid var(--border-subtle);
+        }
+        .kpi-mini:last-child { border-right: none; }
+        .kpi-mini span { font-size: 1.1rem; font-weight: 900; font-family: var(--font-mono); }
+        .kpi-mini small { font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; }
         .sidebar-shipments {
           flex: 1;
           overflow: hidden;
@@ -427,8 +518,8 @@ export default function App() {
           display: flex;
           flex-direction: column;
           border-top: 1px solid var(--border-subtle);
-          max-height: 50%;
-          min-height: 200px;
+          max-height: 45%;
+          min-height: 180px;
         }
         .sidebar-tabs {
           display: flex;
@@ -437,7 +528,7 @@ export default function App() {
         .sidebar-tab {
           flex: 1;
           padding: 7px;
-          font-size: 0.75rem;
+          font-size: 0.73rem;
           font-weight: 600;
           color: var(--text-muted);
           background: none;
@@ -460,6 +551,20 @@ export default function App() {
           flex: 1;
           padding: 8px;
           min-width: 0;
+          position: relative;
+        }
+        .app-alert-feed {
+          width: 280px;
+          flex-shrink: 0;
+          border-left: 1px solid var(--border-subtle);
+          overflow: hidden;
+        }
+
+        /* ── Analytics view ── */
+        .analytics-view {
+          padding: 24px;
+          height: 100%;
+          overflow-y: auto;
         }
       `}</style>
     </div>

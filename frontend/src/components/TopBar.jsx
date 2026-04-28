@@ -1,9 +1,17 @@
 /**
  * TopBar — Header bar with system status, alerts counter, and action buttons.
  */
+import { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, Zap, RefreshCw, Activity } from 'lucide-react';
 
 export default function TopBar({ stats, activeDisruptions, onRefresh, loading }) {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const totalAlerts = (stats?.active_disruptions || 0);
   const lossAvoided = stats?.total_loss_avoided || 0;
 
@@ -45,7 +53,7 @@ export default function TopBar({ stats, activeDisruptions, onRefresh, loading })
       </div>
 
       <div className="topbar-right">
-        <span className="topbar-time">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        <span className="topbar-time">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
         <button className="btn btn-ghost btn-sm" onClick={onRefresh} disabled={loading}>
           <RefreshCw size={14} className={loading ? 'spin' : ''} />
           Refresh
