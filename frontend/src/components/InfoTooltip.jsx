@@ -32,7 +32,7 @@ export default function InfoTooltip({ text, position = 'top' }) {
           white-space: normal;
           box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
           width: 300px;
-          pointer-events: none;
+          pointer-events: auto;
           animation: slideUp 0.2s ease-out;
           z-index: 1000;
         }

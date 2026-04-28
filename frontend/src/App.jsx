@@ -28,6 +28,7 @@ import {
   fetchWarehouses, fetchSuppliers, fetchStats,
   simulateDisruption, clearDisruptions,
 } from './api';
+import { MOCK_SHIPMENTS, MOCK_DISRUPTIONS, MOCK_ACTIVE_DISRUPTIONS, MOCK_WAREHOUSES, MOCK_SUPPLIERS, MOCK_STATS } from './mockData';
 
 const NAV_ITEMS = [
   { id: 'command',   icon: Map,          label: 'Command Center',   color: '#38bdf8', group: 'main' },
@@ -39,12 +40,12 @@ const NAV_ITEMS = [
 ];
 
 export default function App() {
-  const [shipments, setShipments] = useState([]);
-  const [disruptions, setDisruptions] = useState([]);
-  const [activeDisruptions, setActiveDisruptions] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
-  const [suppliers, setSuppliers] = useState([]);
-  const [stats, setStats] = useState(null);
+  const [shipments, setShipments] = useState(MOCK_SHIPMENTS.shipments);
+  const [disruptions, setDisruptions] = useState(MOCK_DISRUPTIONS.disruptions);
+  const [activeDisruptions, setActiveDisruptions] = useState(MOCK_ACTIVE_DISRUPTIONS.active);
+  const [warehouses, setWarehouses] = useState(MOCK_WAREHOUSES.warehouses);
+  const [suppliers, setSuppliers] = useState(MOCK_SUPPLIERS.suppliers);
+  const [stats, setStats] = useState(MOCK_STATS);
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [apiOnline, setApiOnline] = useState(null); // null=unknown, true=online, false=offline
