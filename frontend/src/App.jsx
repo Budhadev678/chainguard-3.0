@@ -22,6 +22,7 @@ import KPICards from './components/Dashboard/KPICards';
 import AlertFeed from './components/Dashboard/AlertFeed';
 import DecisionCenter from './components/Decisions/DecisionCenter';
 import SettingsPage from './components/Settings/SettingsPage';
+import InfoTooltip from './components/InfoTooltip';
 import {
   fetchShipments, fetchDisruptions, fetchActiveDisruptions,
   fetchWarehouses, fetchSuppliers, fetchStats,
@@ -160,9 +161,16 @@ export default function App() {
                     <Icon size={18} />
                   </div>
                   {navHovered && (
-                    <span className="nav-btn-label" style={{ color: isActive ? item.color : undefined }}>
-                      {item.label}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                      <span className="nav-btn-label" style={{ color: isActive ? item.color : undefined }}>
+                        {item.label}
+                      </span>
+                      {item.id === 'command' && <InfoTooltip text="Main map view showing live shipments, active disruptions, and simulated events." position="right" />}
+                      {item.id === 'decisions' && <InfoTooltip text="Review and approve AI-recommended actions to mitigate supply chain risks." position="right" />}
+                      {item.id === 'warroom' && <InfoTooltip text="Collaborate on high-risk events and manage critical disruptions in real-time." position="right" />}
+                      {item.id === 'suppliers' && <InfoTooltip text="Explore your multi-tier supplier network and identify structural vulnerabilities." position="right" />}
+                      {item.id === 'analytics' && <InfoTooltip text="View KPIs, historical trends, and carbon footprint reduction metrics." position="right" />}
+                    </div>
                   )}
                   {badge > 0 && (
                     <span className={`nav-badge ${navHovered ? '' : 'nav-badge-dot'}`}>

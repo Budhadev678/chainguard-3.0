@@ -3,6 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, Zap, RefreshCw, Activity } from 'lucide-react';
+import InfoTooltip from './InfoTooltip';
 
 export default function TopBar({ stats, activeDisruptions, onRefresh, loading }) {
   const [time, setTime] = useState(new Date());
@@ -32,6 +33,7 @@ export default function TopBar({ stats, activeDisruptions, onRefresh, loading })
           <span className="status-text">
             {totalAlerts > 0 ? 'Disruptions Active' : 'All Systems Normal'}
           </span>
+          <InfoTooltip text="Indicates the live operational status of your global supply chain. 'Normal' means no critical alerts." position="bottom" />
         </div>
       </div>
 
@@ -40,14 +42,17 @@ export default function TopBar({ stats, activeDisruptions, onRefresh, loading })
           <div className="stat-pill">
             <Activity size={14} />
             <span>{stats?.total_shipments || 0} Shipments</span>
+            <InfoTooltip text="Total number of active shipments currently being tracked globally." position="bottom" />
           </div>
           <div className="stat-pill" data-variant="warning">
             <AlertTriangle size={14} />
             <span>{totalAlerts} Alerts</span>
+            <InfoTooltip text="Current active disruptions or critical warnings affecting your logistics network." position="bottom" />
           </div>
           <div className="stat-pill" data-variant="success">
             <Zap size={14} />
             <span>${(lossAvoided / 1000000).toFixed(1)}M Saved</span>
+            <InfoTooltip text="Estimated financial loss prevented by AI-driven proactive decisions." position="bottom" />
           </div>
         </div>
       </div>

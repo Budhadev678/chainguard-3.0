@@ -208,13 +208,32 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  transition: all var(--transition-base);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03), transparent);
+  transform: skewX(-20deg);
+  transition: all 0.5s ease;
 }
 
 .card:hover {
   background: var(--bg-card-hover);
-  border-color: var(--border-medium);
-  box-shadow: var(--shadow-md);
+  border-color: var(--accent-blue);
+  box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.2), 0 4px 6px -4px rgba(0,0,0,0.5);
+  transform: translateY(-4px);
+}
+
+.card:hover::before {
+  left: 150%;
 }
 
 .badge {
@@ -266,22 +285,45 @@ body {
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.btn:active::after {
+  transform: scale(20) translate(-50%, -50%);
+  opacity: 1;
+  transition: transform 0.3s, opacity 0.3s;
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .btn-primary {
   background: var(--gradient-primary);
   color: var(--text-inverse);
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
 }
 .btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
-  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+  filter: brightness(1.15);
+  transform: translateY(-1px);
 }
 
 .btn-success {

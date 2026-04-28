@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Trash2, ChevronDown, ChevronUp, AlertTriangle, Check } from 'lucide-react';
+import InfoTooltip from './InfoTooltip';
 
 const DISRUPTION_ICONS = {
   weather: '🌀',
@@ -35,6 +36,7 @@ export default function DisruptionControl({
         <div className="dc-title">
           <Zap size={16} style={{ color: 'var(--accent-blue)' }} />
           <span>Disruption Simulator</span>
+          <InfoTooltip text="Inject simulated real-world disruptions (e.g., severe weather, supplier bankruptcy) to test your supply chain's resilience and see how AI responds." position="right" />
           {activeDisruptions.length > 0 && (
             <span className="dc-count">{activeDisruptions.length} active</span>
           )}
