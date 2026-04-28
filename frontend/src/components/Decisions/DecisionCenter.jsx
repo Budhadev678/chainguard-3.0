@@ -2,6 +2,7 @@
  * ChainGuard 3.0 — Decision Center (PRD requirement)
  * One-click approve/defer AI-recommended actions
  */
+import { useState } from 'react';
 import { CheckCircle2, Clock, Zap, DollarSign, Leaf, AlertTriangle, Sparkles, Ship, Truck, Plane } from 'lucide-react';
 import InfoTooltip from '../InfoTooltip';
 
@@ -154,11 +155,11 @@ export default function DecisionCenter({ activeDisruptions = [], onDecisionMade 
                     <button className="btn btn-success" onClick={() => handleApprove(d.id)}>
                       <CheckCircle2 size={14}/> Approve & Execute
                     </button>
-                    <InfoTooltip text="Instantly execute this strategy. The system will update carriers, reroute shipments, and adjust inventory automatically." position="top" />
+                    <InfoTooltip text="Instantly execute this strategy. The system will update carriers, reroute shipments, and adjust inventory automatically." position="bottom" />
                     <button className="btn btn-ghost" onClick={() => setDeferred(prev => new Set([...prev, d.id]))}>
                       <Clock size={14}/> Defer
                     </button>
-                    <InfoTooltip text="Postpone this decision to gather more data or wait for conditions to change." position="top" />
+                    <InfoTooltip text="Postpone this decision to gather more data or wait for conditions to change." position="bottom" />
                   </>
                 )}
               </div>

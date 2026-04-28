@@ -230,19 +230,19 @@ export default function ShipmentPanel({ shipment, activeDisruptions, onClose, on
                         <button className="btn btn-danger btn-sm" onClick={() => loadCascade(d.id)} disabled={loadingCascade}>
                           {loadingCascade ? 'Loading...' : '🌊 Cascade'}
                         </button>
-                        <InfoTooltip text="Simulate the cascading ripple effects of this disruption across down-stream warehouses and suppliers." position="top" />
+                        <InfoTooltip text="Simulate the cascading ripple effects of this disruption across down-stream warehouses and suppliers." position="left" />
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <button className="btn btn-primary btn-sm" onClick={() => loadRoutes(d.id)} disabled={loadingRoutes}>
                           {loadingRoutes ? 'Loading...' : '🔀 Routes'}
                         </button>
-                        <InfoTooltip text="View AI-generated alternative routes to mitigate delays." position="top" />
+                        <InfoTooltip text="View AI-generated alternative routes to mitigate delays." position="left" />
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         <button className="btn btn-success btn-sm" onClick={() => loadAI(d.id)} disabled={loadingAI}>
                           {loadingAI ? 'Loading...' : '🤖 AI'}
                         </button>
-                        <InfoTooltip text="Get an instant natural language analysis of the situation and recommendations from Gemini AI." position="top" />
+                        <InfoTooltip text="Get an instant natural language analysis of the situation and recommendations from Gemini AI." position="left" />
                       </div>
                     </div>
                   </div>

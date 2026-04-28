@@ -4,6 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Bell, CheckCircle, Info, Zap, X } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 const ALERT_TYPES = {
   critical: { icon: AlertTriangle, color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)' },
@@ -69,6 +70,7 @@ export default function AlertFeed({ activeDisruptions = [], shipments = [] }) {
         <div className="af-title">
           <Zap size={16} color="#38bdf8" />
           <span>Live Alert Feed</span>
+          <InfoTooltip text="A real-time ticker of system events, predictions, and automated actions taken by ChainGuard." position="left" />
         </div>
         <span className="af-badge">{visibleAlerts.length} Active</span>
       </div>

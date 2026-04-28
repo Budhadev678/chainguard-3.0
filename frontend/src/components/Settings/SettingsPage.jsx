@@ -5,6 +5,7 @@
  */
 import { useState } from 'react';
 import { Settings, Key, Globe, Bell, Shield, Save, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import InfoTooltip from '../InfoTooltip';
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
@@ -36,7 +37,10 @@ export default function SettingsPage() {
       <div className="stg-header">
         <div className="stg-header-icon"><Settings size={20} /></div>
         <div>
-          <h2 className="stg-title">Settings & Configuration</h2>
+          <h2 className="stg-title">
+            Settings & Configuration
+            <InfoTooltip text="Manage integration, alerts, and system display options." position="right" />
+          </h2>
           <p className="stg-sub">Manage API keys, preferences, and system configuration</p>
         </div>
       </div>
